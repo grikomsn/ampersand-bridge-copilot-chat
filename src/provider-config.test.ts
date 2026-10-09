@@ -5,10 +5,12 @@ import test from "node:test";
 interface Manifest {
   name: string;
   displayName: string;
+  description: string;
   publisher: string;
   activationEvents: string[];
   contributes: {
     commands: Array<{ command: string; title: string }>;
+    configuration: { properties: Record<string, { description?: string }> };
     languageModelChatProviders: Array<Record<string, unknown>>;
     languageModelTools?: unknown[];
   };
@@ -37,8 +39,20 @@ test("declares the rebranded extension identity and activation event", () => {
   assert.equal(manifest.publisher, "grikomsn");
   assert.match(manifest.displayName, /Ampersand Bridge/);
   assert.ok(manifest.activationEvents.includes("onLanguageModelChatProvider:ampersand-bridge"));
-  assert.ok(!JSON.stringify(manifest).includes("aiand"));
-  assert.ok(!JSON.stringify(manifest).includes("ai&"));
+});
+
+test("names the extension Ampersand Bridge while the service stays ai&", () => {
+  const manifest = readManifest();
+  const raw = JSON.stringify(manifest);
+  // The extension never presents itself as ai&: display identity and command
+  // titles are Ampersand Bridge only.
+  assert.ok(!manifest.displayName.includes("ai&"));
+  for (const { title } of manifest.contributes.commands) assert.ok(!title.includes("ai&"), `command title mentions ai&: ${title}`);
+  // The ai& service is named factually in descriptions, with unaffiliation stated.
+  assert.match(manifest.description, /ai&/);
+  assert.match(manifest.description, /not affiliated/);
+  const inlineSuggestions = manifest.contributes.configuration.properties["ampersandBridge.inlineSuggestions"];
+  assert.match(inlineSuggestions?.description ?? "", /ai& service/);
 });
 
 test("keeps native-entry management and provider commands available", () => {

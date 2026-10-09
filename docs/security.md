@@ -1,6 +1,10 @@
 # Security model
 
-Ampersand Bridge API keys are owned by VS Code's native secret provider configuration. The extension keeps provisioned keys only in memory and never copies them into settings, files, extension logs, or this repository.
+Ampersand Bridge is an independent extension and is not affiliated with,
+endorsed by, or supported by ai&. It talks only to the public ai& API endpoints
+listed below using your own ai& API key.
+
+ai& API keys are owned by VS Code's native secret provider configuration. The extension keeps provisioned keys only in memory and never copies them into settings, files, extension logs, or this repository.
 
 Each entry requires a unique explicit `entryId`. Selection IDs are stable while catalog and inference usage scopes include a one-way credential fingerprint. A distinct in-memory generation retires stale handles on rotation, rotating back, or forgetting an entry. Native group labels are never used as credential identities.
 

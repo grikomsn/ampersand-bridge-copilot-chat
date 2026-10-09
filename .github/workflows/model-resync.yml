@@ -2,8 +2,8 @@ name: Model resync
 
 on:
   schedule:
-    # Mondays 04:10 UTC
-    - cron: "10 4 * * 1"
+    # Mondays 04:20 UTC
+    - cron: "20 4 * * 1"
   workflow_dispatch:
 
 permissions:

@@ -1,7 +1,7 @@
 {
   "name": "ampersand-bridge-copilot-chat",
   "displayName": "Ampersand Bridge for GitHub Copilot Chat",
-  "description": "Use hosted Ampersand Bridge models in GitHub Copilot Chat with your API key.",
+  "description": "Use ai& models in GitHub Copilot Chat with your own API key. Independent extension, not affiliated with ai&.",
   "version": "0.1.0",
   "publisher": "grikomsn",
   "icon": "assets/icon.png",
@@ -88,7 +88,7 @@
         "ampersandBridge.inlineSuggestions": {
           "type": "boolean",
           "default": false,
-          "description": "Experimental. Provide ghost-text inline completions while typing, powered by the Ampersand Bridge service with fill-in-the-middle prompting. Credentials, prompts, and document context are never logged."
+          "description": "Experimental. Provide ghost-text inline completions while typing, powered by the ai& service with fill-in-the-middle prompting. Credentials, prompts, and document context are never logged."
         },
         "ampersandBridge.inlineSuggestionsModel": {
           "type": "string",

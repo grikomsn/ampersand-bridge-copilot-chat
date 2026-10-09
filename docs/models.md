@@ -1,11 +1,11 @@
 # Models
 
-Model discovery is live-first: `GET /v1/models` is authoritative for every
-native provider entry, filtered to chat-capable hosted models, and cached per
-credential for `ampersandBridge.catalogCacheMinutes` (default 5). Successful
-snapshots persist to workspace storage so the picker survives unavailable
-refreshes. A key the service refuses (HTTP 401/403) lists no models at all,
-because every request would fail.
+Model discovery is live-first against the ai& service: `GET /v1/models` is
+authoritative for every native provider entry, filtered to chat-capable hosted
+models, and cached per credential for `ampersandBridge.catalogCacheMinutes`
+(default 5). Successful snapshots persist to workspace storage so the picker
+survives unavailable refreshes. A key the service refuses (HTTP 401/403) lists
+no models at all, because every request would fail.
 
 When discovery is unavailable, the picker falls back to the bundled catalog
 below. Contexts, output ceilings, image input, and reasoning efforts come from

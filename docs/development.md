@@ -17,8 +17,9 @@ with the repository launch configuration for an Extension Development Host.
 
 ## Live checks
 
-In the Extension Development Host, add a provider entry in Manage Language
-Models with a real API key, then run **Ampersand Bridge: Test Inference**,
+Ampersand Bridge talks to the public [ai&](https://docs.aiand.com) API. In the
+Extension Development Host, add a provider entry in Manage Language Models with
+a real ai& API key, then run **Ampersand Bridge: Test Inference**,
 **Refresh Models**, and **Show Usage and Credits**. Optionally put
 `AMPERSAND_API_KEY` in a git-ignored `.env` for the model-resync script:
 
@@ -81,6 +82,9 @@ Key properties:
   text, closes it before tools and at every terminal path, and assigns
   distinct fallback call IDs. The SSE parser joins indexed and ID-only
   fragments for parallel tools and accepts CRLF split across transport chunks.
+- The service streams reasoning under `delta.reasoning` (verified live
+  2026-10-09); the parser also accepts the `reasoning_content` spelling some
+  dialects use.
 - Balance usage is fetched live per entry and never persisted; only locally
   tracked token/cost activity survives restarts, scoped per credential.
 - Retries are pre-stream only, on network errors and HTTP 429/502/503/504, and
@@ -105,5 +109,5 @@ matching GitHub release.
 
 ## Sources
 
-- [Ampersand Bridge API keys](https://console.aiand.com/settings/api-keys)
+- [ai& API keys](https://console.aiand.com/settings/api-keys)
 - [models.dev](https://models.dev/)

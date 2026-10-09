@@ -209,6 +209,7 @@ async function diagnostics(provider: AmpersandProvider, output: vscode.OutputCha
     "",
     `- VS Code: ${vscode.version}`,
     `- API endpoint: ${API_BASE}`,
+    "- Service: ai& hosted API (independent extension, not affiliated with ai&)",
     `- Native entries: ${entries.length ? entries.map(({ entryId }) => entryId).join(", ") : "none"}`,
     `- Default reasoning effort: ${vscode.workspace.getConfiguration("ampersandBridge").get("reasoningEffort", "high")}`,
     `- Registered models: ${models.length}`,

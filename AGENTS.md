@@ -5,6 +5,7 @@
 - These instructions apply to the entire repository.
 - This is a strict-TypeScript VS Code `LanguageModelChatProvider`. Use Node.js 22+ and npm; `package-lock.json` is authoritative.
 - Install from a clean checkout with `npm ci`.
+- The extension is **Ampersand Bridge** (independent, not affiliated with ai&) and bridges VS Code to the public **ai&** service at `api.aiand.com`. Docs must keep that split: extension = Ampersand Bridge, service = ai&.
 
 ## Code map
 

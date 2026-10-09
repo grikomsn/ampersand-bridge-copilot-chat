@@ -1,10 +1,15 @@
 # Setup
 
+Ampersand Bridge connects GitHub Copilot Chat to the [ai&](https://docs.aiand.com)
+hosted model service with your own ai& API key. The extension is independent and
+not affiliated with ai& — see [security](./security.md) for the exact network
+surface.
+
 ## Requirements
 
 - VS Code 1.125 or newer with GitHub Copilot Chat
-- An Ampersand Bridge API key (create one in the hosted dashboard via
-  **Ampersand Bridge: Open API Keys**)
+- An ai& API key (create one in the [ai& console](https://console.aiand.com/settings/api-keys)
+  via **Ampersand Bridge: Open API Keys**)
 
 ## Connect
 
