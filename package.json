@@ -2,7 +2,7 @@
   "name": "ampersand-bridge-copilot-chat",
   "displayName": "Ampersand Bridge for GitHub Copilot Chat",
   "description": "Use ai& models in GitHub Copilot Chat with your own API key. Independent extension, not affiliated with ai&.",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "publisher": "grikomsn",
   "icon": "assets/icon.png",
   "license": "MIT",
