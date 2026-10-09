@@ -1,0 +1,256 @@
+{
+  "name": "ampersand-bridge-copilot-chat",
+  "displayName": "Ampersand Bridge for GitHub Copilot Chat",
+  "description": "Use hosted Ampersand Bridge models in GitHub Copilot Chat with your API key.",
+  "version": "0.1.0",
+  "publisher": "grikomsn",
+  "icon": "assets/icon.png",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/grikomsn/ampersand-bridge-copilot-chat.git"
+  },
+  "bugs": {
+    "url": "https://github.com/grikomsn/ampersand-bridge-copilot-chat/issues"
+  },
+  "homepage": "https://github.com/grikomsn/ampersand-bridge-copilot-chat#readme",
+  "engines": {
+    "vscode": "^1.125.0"
+  },
+  "categories": [
+    "AI",
+    "Chat",
+    "Machine Learning"
+  ],
+  "keywords": [
+    "ampersand-bridge",
+    "openai-compatible",
+    "copilot",
+    "copilot-chat",
+    "api-key",
+    "language-model"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "onLanguageModelChatProvider:ampersand-bridge"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "ampersandBridge.setInlineSuggestionsModel",
+        "title": "Ampersand Bridge: Set Inline Suggestions Model"
+      },
+      {
+        "command": "ampersandBridge.manage",
+        "title": "Ampersand Bridge: Manage Connection"
+      },
+      {
+        "command": "ampersandBridge.refreshModels",
+        "title": "Ampersand Bridge: Refresh Models"
+      },
+      {
+        "command": "ampersandBridge.showUsage",
+        "title": "Ampersand Bridge: Show Usage and Credits"
+      },
+      {
+        "command": "ampersandBridge.testConnection",
+        "title": "Ampersand Bridge: Test Inference"
+      },
+      {
+        "command": "ampersandBridge.openApiKeys",
+        "title": "Ampersand Bridge: Open API Keys"
+      },
+      {
+        "command": "ampersandBridge.diagnostics",
+        "title": "Ampersand Bridge: Show Diagnostics"
+      },
+      {
+        "command": "ampersandBridge.selectEntry",
+        "title": "Ampersand Bridge: Select Management Entry"
+      },
+      {
+        "command": "ampersandBridge.selectInlineEntry",
+        "title": "Ampersand Bridge: Select Inline Suggestions Entry"
+      },
+      {
+        "command": "ampersandBridge.forgetEntry",
+        "title": "Ampersand Bridge: Forget Native Entry"
+      },
+      {
+        "command": "ampersandBridge.restoreEntry",
+        "title": "Ampersand Bridge: Restore Native Entry"
+      }
+    ],
+    "configuration": {
+      "title": "Ampersand Bridge for Copilot Chat",
+      "properties": {
+        "ampersandBridge.inlineSuggestions": {
+          "type": "boolean",
+          "default": false,
+          "description": "Experimental. Provide ghost-text inline completions while typing, powered by the Ampersand Bridge service with fill-in-the-middle prompting. Credentials, prompts, and document context are never logged."
+        },
+        "ampersandBridge.inlineSuggestionsModel": {
+          "type": "string",
+          "default": "deepseek-ai/deepseek-v4-flash",
+          "description": "Model id used for inline completions. deepseek-ai/deepseek-v4-flash is the measured low-latency default; the Set Inline Suggestions Model command lists vetted candidates with measured latency badges."
+        },
+        "ampersandBridge.inlineSuggestionsChatInput": {
+          "type": "boolean",
+          "default": false,
+          "description": "Also offer inline completions inside the Copilot Chat prompt box."
+        },
+        "ampersandBridge.inlineSuggestionsDebounceMs": {
+          "type": "number",
+          "default": 300,
+          "minimum": 50,
+          "maximum": 2000,
+          "description": "Debounce window in milliseconds between typing and an inline completion request."
+        },
+        "ampersandBridge.inlineSuggestionsTimeoutMs": {
+          "type": "number",
+          "default": 3000,
+          "minimum": 500,
+          "maximum": 15000,
+          "description": "Per-request timeout in milliseconds for inline completions."
+        },
+        "ampersandBridge.inlineSuggestionsMaxTokens": {
+          "type": "number",
+          "default": 128,
+          "minimum": 16,
+          "maximum": 1024,
+          "description": "Maximum tokens generated per inline completion."
+        },
+        "ampersandBridge.inlineSuggestionsPrefixLines": {
+          "type": "number",
+          "default": 10,
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Lines of document context sent before the cursor."
+        },
+        "ampersandBridge.inlineSuggestionsSuffixChars": {
+          "type": "number",
+          "default": 300,
+          "minimum": 0,
+          "maximum": 5000,
+          "description": "Characters of document context sent after the cursor."
+        },
+        "ampersandBridge.reasoningEffort": {
+          "type": "string",
+          "enum": [
+            "none",
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "default": "high",
+          "enumDescriptions": [
+            "Disable reasoning for the fastest response.",
+            "Use less reasoning for lower latency and cost.",
+            "Balance reasoning depth, latency, and cost.",
+            "Use deeper reasoning for complex tasks.",
+            "Use extra-high reasoning for especially difficult tasks.",
+            "Use the model's maximum reasoning effort."
+          ],
+          "description": "Default Ampersand Bridge reasoning effort. A Copilot model-picker selection overrides this value, and a model only accepts efforts from its own supported list."
+        },
+        "ampersandBridge.maxOutputTokens": {
+          "type": "number",
+          "default": 0,
+          "minimum": 0,
+          "description": "Maximum output tokens requested from Ampersand Bridge. Use 0 to reserve up to 32,768 response tokens. Positive values are capped by the model output capability and context window."
+        },
+        "ampersandBridge.requestTimeoutSeconds": {
+          "type": "number",
+          "default": 600,
+          "minimum": 10,
+          "description": "Maximum duration of an Ampersand Bridge inference request in seconds."
+        },
+        "ampersandBridge.streamIdleTimeoutSeconds": {
+          "type": "number",
+          "default": 120,
+          "minimum": 10,
+          "description": "Maximum time without receiving streamed Ampersand Bridge response data before aborting a request."
+        },
+        "ampersandBridge.catalogCacheMinutes": {
+          "type": "number",
+          "default": 5,
+          "minimum": 1,
+          "description": "How long the Ampersand Bridge model catalog is reused before refreshing."
+        },
+        "ampersandBridge.debugLogging": {
+          "type": "boolean",
+          "default": false,
+          "description": "Log request, stream, usage, and model-discovery metadata to the Ampersand Bridge output channel. Prompts and API keys are never logged."
+        },
+        "ampersandBridge.showUsageStatusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show Ampersand Bridge credit balance and usage in the status bar. Click to open the usage quick pick."
+        },
+        "ampersandBridge.managementEntry": {
+          "type": "string",
+          "default": "",
+          "description": "Explicit native entryId used for models, usage, and connection tests. Select an available entry through Ampersand Bridge: Manage Connection. No automatic fallback."
+        },
+        "ampersandBridge.inlineSuggestionsEntry": {
+          "type": "string",
+          "default": "",
+          "description": "Explicit native entryId used for inline suggestions. Select an available entry through Ampersand Bridge: Manage Connection. No automatic fallback."
+        }
+      }
+    },
+    "languageModelChatProviders": [
+      {
+        "vendor": "ampersand-bridge",
+        "displayName": "Ampersand Bridge",
+        "configuration": {
+          "type": "object",
+          "required": [
+            "entryId",
+            "apiKey"
+          ],
+          "properties": {
+            "apiKey": {
+              "type": "string",
+              "title": "Ampersand Bridge API Key",
+              "description": "API key for this Ampersand Bridge provider entry. VS Code stores configured secrets securely.",
+              "secret": true
+            },
+            "entryId": {
+              "type": "string",
+              "title": "Unique Entry ID",
+              "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+              "minLength": 1,
+              "maxLength": 64,
+              "description": "Unique stable ID for this entry, such as personal or work. Keep it when rotating the key. Native group names are display labels and do not identify credentials."
+            }
+          }
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "clean": "node -e \"require('node:fs').rmSync('out',{recursive:true,force:true})\"",
+    "compile": "npm run clean && tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "npm run compile && node --test \"out/**/*.test.js\"",
+    "check": "npm test",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "npm run check && vsce publish --skip-duplicate",
+    "refresh-models": "node scripts/refresh-models.mjs",
+    "prepackage": "npm run check",
+    "package": "vsce package",
+    "vscode:prepublish": "npm run compile"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.31.0",
+    "@types/node": "^24.0.0",
+    "@types/vscode": "^1.125.0",
+    "@vscode/vsce": "^3.9.2",
+    "typescript": "^6.0.3"
+  }
+}
