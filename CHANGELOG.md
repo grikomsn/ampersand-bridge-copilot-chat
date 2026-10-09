@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.2.0
+
+### Minor Changes
+
+- 9667969: Initial bootstrap of Ampersand Bridge for GitHub Copilot Chat: native VS Code
+  provider entries with a required stable `entryId` and VS Code-owned API keys,
+  hosted model discovery with per-credential persisted catalogs and models.dev
+  enrichment, streamed reasoning and tool calls with fragment/CRLF-safe parsing,
+  per-model reasoning-effort lists, credit-balance usage with locally tracked
+  tokens, and opt-in fill-in-the-middle inline suggestions with measured model
+  candidates.
+
+### Patch Changes
+
+- 55b7b4d: Align the extension icon and README cover with the sibling providers' black
+  background, white provider mark, and blue-purple Copilot motif using an
+  independent angular ampersand identity.
+
 All notable changes to this project will be documented in this file.
 
 Versioning follows semver. Releases are managed with Changesets and published to
