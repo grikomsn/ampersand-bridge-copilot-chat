@@ -36,7 +36,7 @@
 - Keep changes focused and follow the existing strict TypeScript style: explicit public types, small helpers, double quotes, and two-space indentation.
 - Add or update colocated `node:test` coverage for behavior changes. Network paths must use injected fakes rather than live services.
 - API keys live only in VS Code-managed provider-entry configuration. Never log or commit keys, prompts, tool arguments, responses, or account data.
-- Native entries require a unique stable `entryId`; rotating a key retires issued model handles, and forgotten entry IDs stay blocked until explicitly restored.
+- Native entries carry only a VS Code-owned API key and a user-typed group name; the provider tracks no entry identifiers, and rotations re-scope catalogs and usage by key fingerprint.
 - Treat the live `/v1/models` response as authoritative. Persist per-credential snapshots for unavailable refreshes, list nothing when the service refuses a key, and never merge stale entries into a successful response.
 - Requests must use the fixed endpoints from `src/transport/protocol.ts`; never redirect credentials through a workspace-configurable endpoint.
 - Per-model reasoning-effort lists are authoritative: never widen a live list with metadata, and never send an effort the model does not accept.

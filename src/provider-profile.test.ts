@@ -1,46 +1,40 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { apiKeyFromConfiguration, entryIdFromConfiguration, NativeEntries, qualifiedModelId } from "./provider-profile";
+import { apiKeyFromConfiguration, Credentials } from "./provider-profile";
+import { credentialReference } from "./auth/auth";
 
-test("requires an explicit canonical entry ID rather than a display-name slug", () => {
-  for (const entryId of [undefined, "A B", "A-B", "first::second", "x".repeat(65)]) {
-    assert.throws(() => entryIdFromConfiguration({ entryId, name: "display label" }), /unique entryId/);
-  }
-  assert.equal(entryIdFromConfiguration({ entryId: "work-team" }), "work-team");
+test("extracts a trimmed API key from entry configuration", () => {
   assert.equal(apiKeyFromConfiguration({ apiKey: "  synthetic-key  " }), "synthetic-key");
   assert.equal(apiKeyFromConfiguration({ apiKey: "   " }), undefined);
   assert.equal(apiKeyFromConfiguration({}), undefined);
 });
 
-test("rotation preserves selections and retires old handles, including rotating back", () => {
-  const entries = new NativeEntries();
-  const a = entries.register({ entryId: "work", apiKey: "synthetic-a" });
-  assert.equal(entries.register({ entryId: "work", apiKey: "synthetic-a" }).generation, a.generation);
-  const b = entries.register({ entryId: "work", apiKey: "synthetic-b" });
-  assert.throws(() => entries.key(a), /changed or was forgotten/);
-  assert.equal(qualifiedModelId(a.entryId, "deepseek-ai/deepseek-v4-flash"), qualifiedModelId(b.entryId, "deepseek-ai/deepseek-v4-flash"));
-  const a2 = entries.register({ entryId: "work", apiKey: "synthetic-a" });
-  assert.notEqual(a.generation, a2.generation);
-  assert.equal(entries.matches(a), false);
-  assert.equal(entries.key(a2), "synthetic-a");
+test("credentials register once per distinct key and share fingerprints", () => {
+  const credentials = new Credentials();
+  const first = credentials.register("synthetic-a");
+  const second = credentials.register("synthetic-b");
+  const shared = credentials.register(" shared ");
+  const sameShared = credentials.register("shared");
+  assert.notEqual(first, second);
+  assert.equal(shared, sameShared);
+  assert.equal(credentials.keyForCredential(shared), "shared");
+  assert.match(shared, /^[a-f0-9]{16}$/);
+  assert.match(credentialReference("key"), /^[a-f0-9]{16}$/);
 });
 
-test("entries with the same key and label keep separate scope and explicit forget retires handles", () => {
-  const entries = new NativeEntries();
-  const a = entries.register({ entryId: "one", name: "Same", apiKey: "synthetic-shared" });
-  const b = entries.register({ entryId: "two", name: "Same", apiKey: "synthetic-shared" });
-  assert.notEqual(a.credentialRef, b.credentialRef);
-  entries.forget("one");
-  assert.throws(() => entries.key(a), /changed or was forgotten/);
-  assert.equal(entries.key(b), "synthetic-shared");
-  assert.throws(() => entries.get("one"), /Select an available/);
-  assert.equal(entries.isForgotten("one"), true);
-  entries.restore("one");
-  assert.equal(entries.isForgotten("one"), false);
+test("has and keyForCredential resolve only provisioned keys", () => {
+  const credentials = new Credentials();
+  const ref = credentials.register("synthetic-a");
+  assert.equal(credentials.has(ref), true);
+  assert.equal(credentials.has("deadbeef"), false);
+  assert.equal(credentials.keyForCredential("deadbeef"), undefined);
 });
 
-test("forgotten entry IDs are validated on restore and forget", () => {
-  const entries = new NativeEntries();
-  assert.throws(() => entries.restore("BAD ID"), /unique entryId/);
-  assert.throws(() => entries.forget("BAD ID"), /unique entryId/);
+test("activeApiKey prefers the most recently provisioned key", async () => {
+  const credentials = new Credentials();
+  assert.equal(credentials.activeApiKey(), undefined);
+  credentials.register("synthetic-a");
+  await new Promise((resolve) => setTimeout(resolve, 5));
+  credentials.register("synthetic-b");
+  assert.equal(credentials.activeApiKey(), "synthetic-b");
 });

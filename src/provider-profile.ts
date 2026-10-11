@@ -1,70 +1,43 @@
-import { randomUUID } from "node:crypto";
 import { credentialReference } from "./auth/auth";
 
-export function entryIdFromConfiguration(configuration: Readonly<Record<string, unknown>>): string {
-  const value = configuration.entryId;
-  if (typeof value !== "string" || !/^[a-z0-9][a-z0-9._-]{0,63}$/.test(value)) {
-    throw new Error("Set a unique entryId in Manage Language Models: 1-64 lowercase letters, numbers, dots, underscores, or hyphens");
-  }
-  return value;
-}
-
+/** Extracts the VS Code-owned API key from a native provider entry configuration. */
 export function apiKeyFromConfiguration(configuration: Readonly<Record<string, unknown>>): string | undefined {
   const value = configuration.apiKey;
   const apiKey = typeof value === "string" ? value.trim() : "";
   return apiKey || undefined;
 }
 
-export function qualifiedModelId(entryId: string, modelId: string): string { return `${entryId}::${modelId}`; }
-export interface NativeEntry {
-  readonly entryId: string;
-  readonly credentialRef: string;
-  readonly generation: string;
-}
+/**
+ * In-memory registry of the API keys VS Code supplied during provisioning.
+ * Keys stay in memory only; entry groups are the sole user-facing identity and
+ * the host namespaces model identifiers per group, so no entry IDs are tracked.
+ */
+export class Credentials {
+  private readonly entries = new Map<string, { apiKey: string; registeredAt: number }>();
+  private sequence = 0;
 
-/** VS Code owns the secrets. A rotation retires every previously issued model handle. */
-export class NativeEntries {
-  private readonly entries = new Map<string, NativeEntry & { apiKey: string }>();
-  private readonly forgotten: Set<string>;
-
-  constructor(forgotten: readonly string[] = []) {
-    this.forgotten = new Set(forgotten.filter((id) => /^[a-z0-9][a-z0-9._-]{0,63}$/.test(id)));
-  }
-
-  register(configuration: Readonly<Record<string, unknown>>): NativeEntry {
-    const entryId = entryIdFromConfiguration(configuration);
-    if (this.forgotten.has(entryId)) throw new Error("This Ampersand Bridge entry was forgotten. Restore it explicitly in Manage Connection.");
-    const apiKey = apiKeyFromConfiguration(configuration);
-    if (!apiKey) throw new Error("Set a valid Ampersand Bridge API key in Manage Language Models");
-    const previous = this.entries.get(entryId);
-    const credentialRef = `${entryId}:${credentialReference(apiKey)}`;
-    const generation = previous?.credentialRef === credentialRef ? previous.generation : randomUUID();
-    this.entries.set(entryId, { entryId, credentialRef, generation, apiKey });
-    return { entryId, credentialRef, generation };
+  /** Registers a provisioned key and returns its credential fingerprint. */
+  register(apiKey: string): string {
+    const credentialRef = credentialReference(apiKey);
+    this.sequence += 1;
+    this.entries.set(credentialRef, { apiKey, registeredAt: this.sequence });
+    return credentialRef;
   }
 
-  list(): NativeEntry[] {
-    return [...this.entries.values()].map(({ entryId, credentialRef, generation }) => ({ entryId, credentialRef, generation }));
+  has(credentialRef: string): boolean {
+    return this.entries.has(credentialRef);
   }
-  matches(entry: NativeEntry): boolean {
-    const current = this.entries.get(entry.entryId);
-    return current?.credentialRef === entry.credentialRef && current.generation === entry.generation;
+
+  keyForCredential(credentialRef: string): string | undefined {
+    return this.entries.get(credentialRef)?.apiKey;
   }
-  key(entry: NativeEntry): string {
-    if (!this.matches(entry)) throw new Error("This Ampersand Bridge entry changed or was forgotten. Reselect its model in Manage Language Models.");
-    return this.entries.get(entry.entryId)!.apiKey;
-  }
-  get(entryId: string): NativeEntry {
-    const entry = this.entries.get(entryId);
-    if (!entry) throw new Error("Select an available Ampersand Bridge entry in Manage Connection");
-    return { entryId, credentialRef: entry.credentialRef, generation: entry.generation };
-  }
-  isForgotten(entryId: string): boolean { return this.forgotten.has(entryId); }
-  forgottenIds(): string[] { return [...this.forgotten]; }
-  restore(entryId: string): void { this.forgotten.delete(entryIdFromConfiguration({ entryId })); }
-  forget(entryId: string): void {
-    entryIdFromConfiguration({ entryId });
-    this.entries.delete(entryId);
-    this.forgotten.add(entryId);
+
+  /** Most recently provisioned key; used by management commands and inline features. */
+  activeApiKey(): string | undefined {
+    let active: { apiKey: string; registeredAt: number } | undefined;
+    for (const entry of this.entries.values()) {
+      if (!active || entry.registeredAt >= active.registeredAt) active = entry;
+    }
+    return active?.apiKey;
   }
 }

@@ -62,7 +62,7 @@ function setup(stream: string, catalog: unknown = { data: [{ id: "openai/gpt-oss
 
 async function nativeModel(provider: InstanceType<typeof Provider>): Promise<import("./provider").AmpersandModel> {
   const [model] = await provider.provideLanguageModelChatInformation(
-    { configuration: { entryId: "work", apiKey: "entry-fixture" } },
+    { configuration: { apiKey: "entry-fixture" } },
     token,
   );
   assert.ok(model);
@@ -102,10 +102,10 @@ test("cancels the response body when stream parsing fails", async () => {
 test("keeps a successful empty catalog across discovery calls", async () => {
   const { provider } = setup("", { data: [] });
   assert.deepEqual(await provider.provideLanguageModelChatInformation(
-    { configuration: { entryId: "work", apiKey: "entry-fixture" } }, token,
+    { configuration: { apiKey: "entry-fixture" } }, token,
   ), []);
   assert.deepEqual(await provider.provideLanguageModelChatInformation(
-    { configuration: { entryId: "work", apiKey: "entry-fixture" } }, token,
+    { configuration: { apiKey: "entry-fixture" } }, token,
   ), []);
 });
 
@@ -116,7 +116,7 @@ test("lists no models when the service refuses the entry key", async () => {
     throw new Error(`unexpected fetch ${String(url)}`);
   };
   const provider = new Provider(output, "fixture-agent", undefined, undefined, fetchImpl);
-  const configuration = { configuration: { entryId: "work", apiKey: "entry-fixture" } };
+  const configuration = { configuration: { apiKey: "entry-fixture" } };
   assert.deepEqual(await provider.provideLanguageModelChatInformation(configuration, token), []);
   // The refused key stays refused across repeat queries within the cache window.
   assert.deepEqual(await provider.provideLanguageModelChatInformation(configuration, token), []);

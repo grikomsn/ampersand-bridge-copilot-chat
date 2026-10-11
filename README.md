@@ -33,10 +33,10 @@ Ampersand Bridge is community-maintained and independent: it is not affiliated w
 
 1. Install the extension. You need VS Code 1.125 or newer and GitHub Copilot Chat.
 2. Create an API key in the [ai& console](https://console.aiand.com/settings/api-keys), or run **Ampersand Bridge: Open API Keys**.
-3. Open Copilot Chat, select **Manage Models**, add an **Ampersand Bridge** provider entry, and enter a unique lowercase **Entry ID** plus the key.
+3. Open Copilot Chat, select **Manage Models**, add an **Ampersand Bridge** provider entry, name it, and enter the key.
 4. Choose any model returned for that key.
 
-To use more than one key, add another **Ampersand Bridge** entry with a different Entry ID. Keep that ID when rotating the key; saved model selections stay stable and old request handles are retired. Use **Ampersand Bridge: Manage Connection** to select entries independently for management and inline suggestions, and to refresh models, test inference, or show usage. Before deleting an entry, run **Ampersand Bridge: Forget Native Entry** and remove it in Manage Language Models.
+To use more than one key, add another **Ampersand Bridge** entry with a different name. The entry name is its identity: VS Code namespaces each entry's models per group, stores the key in its secure storage, and offers key updates on the entry. Use **Ampersand Bridge: Manage Connection** to refresh models, test inference, or show usage. Deleting an entry removes its VS Code-owned credential.
 
 ## Documentation
 

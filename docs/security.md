@@ -6,11 +6,11 @@ listed below using your own ai& API key.
 
 ai& API keys are owned by VS Code's native secret provider configuration. The extension keeps provisioned keys only in memory and never copies them into settings, files, extension logs, or this repository.
 
-Each entry requires a unique explicit `entryId`. Selection IDs are stable while catalog and inference usage scopes include a one-way credential fingerprint. A distinct in-memory generation retires stale handles on rotation, rotating back, or forgetting an entry. Native group labels are never used as credential identities.
+Entries are identified by the group name you type in **Manage Language Models**; VS Code namespaces each entry's model identifiers per group and never exposes the group name to the provider, so no entry identifiers are tracked by the extension. Catalogs and inference usage scopes include a one-way key fingerprint, and keeping or rotating a key re-scopes the entry automatically.
 
-Credit balances are fetched live per selected entry and never persisted; only locally tracked inference activity (token and cost totals) survives restarts, scoped per credential. The observation journal contains only entry IDs, model counts, and timestamps — never credentials or account data.
+Credit balances are fetched live per credential and never persisted; only locally tracked inference activity (token and cost totals) survives restarts, scoped per key fingerprint. No entry identity state is persisted by the extension.
 
-VS Code does not expose native entry removal to the provider. Use **Ampersand Bridge: Forget Native Entry** before deleting the entry in Manage Language Models. This retires cached catalogs, model handles, and tracked activity; it does not revoke the remote API key.
+Delete or update credentials through **Manage Language Models**. VS Code stores and updates the key, and removing an entry deletes its VS Code-owned credential; this does not revoke the remote API key.
 
 Create dedicated API keys in the Ampersand Bridge dashboard and set per-key rate or spend limits there. Rotate or revoke the key in the dashboard when it is no longer needed.
 
@@ -27,10 +27,8 @@ The live catalog remains authoritative. Prompt and tool content is sent only to 
 
 ## Inline completions
 
-When `ampersandBridge.inlineSuggestions` is enabled, each suggestion sends a bounded window of the current document (a fixed number of lines before the cursor and a bounded suffix after it) using the explicitly selected inline entry's API key to the same `/chat/completions` endpoint. Hidden reasoning deltas are discarded so they can never leak into ghost text. Upstream error bodies are never surfaced or logged because they can echo prompt context. The feature is disabled by default.
+When `ampersandBridge.inlineSuggestions` is enabled, each suggestion sends a bounded window of the current document (a fixed number of lines before the cursor and a bounded suffix after it) using the most recently provisioned entry's API key to the same `/chat/completions` endpoint. Hidden reasoning deltas are discarded so they can never leak into ghost text. Upstream error bodies are never surfaced or logged because they can echo prompt context. The feature is disabled by default.
 
 ## Logging
 
 Debug logs contain model IDs, request state, retries, usage counters, and error summaries. They exclude API keys, authorization headers, prompts, tool arguments, and response text. Streamed API errors are reported without echoing upstream response bodies. Credential references are short one-way hashes used only to isolate in-memory and persisted model catalogs.
-
-Forgotten entry IDs remain blocked across restarts, so native model discovery cannot automatically revive them. Use **Ampersand Bridge: Restore Native Entry** to intentionally provision that ID again. This stores only the forgotten IDs, never keys or account information.

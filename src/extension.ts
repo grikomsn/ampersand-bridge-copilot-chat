@@ -35,8 +35,7 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.workspace.onDidChangeConfiguration((event) => {
       if (
         event.affectsConfiguration("ampersandBridge.reasoningEffort") ||
-        event.affectsConfiguration("ampersandBridge.catalogCacheMinutes") ||
-        event.affectsConfiguration("ampersandBridge.managementEntry")
+        event.affectsConfiguration("ampersandBridge.catalogCacheMinutes")
       ) {
         provider.fireDidChange();
       }
@@ -47,7 +46,7 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.lm.registerLanguageModelChatProvider("ampersand-bridge", provider),
     ...registerCommands(provider, output, usageStatus),
     registerInlineCompletions(context, {
-      resolveApiKey: async () => provider.getFeatureApiKey("inlineSuggestionsEntry"),
+      resolveApiKey: async () => provider.getFeatureApiKey(),
       resolveReasoningEfforts: (modelId) => provider.reasoningEffortsFor(modelId),
       output,
       version: context.extension.packageJSON.version as string,
