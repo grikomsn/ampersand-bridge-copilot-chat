@@ -4,9 +4,6 @@ const { AmpersandProvider } = require("../../out/provider");
 
 /** Real VS Code parts and cancellation, synthetic HTTP and credentials only. */
 async function run() {
-  const configuration = vscode.workspace.getConfiguration("ampersandBridge");
-  const settings = ["managementEntry", "inlineSuggestionsEntry"];
-  const original = Object.fromEntries(settings.map((name) => [name, configuration.inspect(name)?.globalValue]));
   const source = new vscode.CancellationTokenSource();
   const values = new Map();
   const state = { get: (key) => values.get(key), update: async (key, value) => { values.set(key, value); } };
@@ -61,18 +58,17 @@ async function run() {
     } }));
   };
   const provider = new AmpersandProvider({ appendLine() {} }, "native-test", state, {}, fetcher);
-  const prepare = async (entryId, apiKey) => provider.provideLanguageModelChatInformation({ silent: true,
-    configuration: { entryId, apiKey, name: "Same label" } }, source.token);
+  const prepare = async (apiKey) => provider.provideLanguageModelChatInformation({ silent: true,
+    configuration: { apiKey, name: "Same label" } }, source.token);
   const options = { requestInitiator: "native-test", tools: [{ name: "read", description: "Synthetic", inputSchema: { type: "object" } }] };
   try {
-    await configuration.update("managementEntry", "native-a", vscode.ConfigurationTarget.Global);
-    await configuration.update("inlineSuggestionsEntry", "native-a", vscode.ConfigurationTarget.Global);
-    const aModels = await prepare("native-a", "synthetic_a");
-    const bModels = await prepare("native-b", "synthetic_b");
+    const aModels = await prepare("synthetic_a");
+    const bModels = await prepare("synthetic_b");
     const a = aModels.find((model) => model.rawModelId === "deepseek-ai/deepseek-v4-flash");
     const b = bModels.find((model) => model.rawModelId === "synthetic-byok");
-    assert.notEqual(a.id, b.id);
-    assert.equal(provider.getFeatureApiKey("inlineSuggestionsEntry"), "synthetic_a");
+    assert.equal(a.id, "deepseek-ai/deepseek-v4-flash", "Model ids are raw hosted ids; the host namespaces per group");
+    assert.notEqual(a.credentialRef, b.credentialRef);
+    assert.equal(provider.getFeatureApiKey(), "synthetic_b", "Active key follows the most recent provisioning");
     const output = [];
     await provider.provideLanguageModelChatResponse(a, [vscode.LanguageModelChatMessage.User("synthetic prompt")], options,
       { report: (part) => output.push(part) }, source.token);
@@ -90,27 +86,29 @@ async function run() {
     assert.equal(sent.at(-1).body.messages.filter((message) => message.role === "tool").length, 3);
     assert.equal(sent.at(-1).body.model, "synthetic-byok");
     assert.equal(sent.at(-1).authorization, "Bearer synthetic_b");
-    assert.equal(provider.getUsageSnapshot(a).tracked.requests, 1);
-    assert.equal(provider.getUsageSnapshot(b).tracked.requests, 1);
-    await provider.refreshUsage(a);
-    assert.equal(provider.getUsageSnapshot(a).account.credits, 111);
-    await provider.refreshUsage(b);
-    assert.equal(provider.getUsageSnapshot(b).account.credits, 222);
-    assert.equal(provider.getUsageSnapshot(a).account.credits, 111);
+    assert.equal(provider.getUsageSnapshot(a.credentialRef).tracked.requests, 1);
+    assert.equal(provider.getUsageSnapshot(b.credentialRef).tracked.requests, 1);
+    await provider.refreshUsage(a.credentialRef);
+    assert.equal(provider.getUsageSnapshot(a.credentialRef).account.credits, 111);
+    await provider.refreshUsage(b.credentialRef);
+    assert.equal(provider.getUsageSnapshot(b.credentialRef).account.credits, 222);
+    assert.equal(provider.getUsageSnapshot(a.credentialRef).account.credits, 111);
     const persisted = values.get("ampersandBridge.entryUsage.v1");
     assert.equal(Object.values(persisted).some((snapshot) => snapshot.account), false);
     let releaseBalance;
     pendingBalance = () => new Promise((resolve) => { releaseBalance = resolve; });
-    const oldRefresh = provider.refreshUsage(a);
+    const oldRefresh = provider.refreshUsage(a.credentialRef);
     while (!releaseBalance) await new Promise((resolve) => setImmediate(resolve));
-    const rotated = (await prepare("native-a", "synthetic_rotated"))[0];
+    const rotated = (await prepare("synthetic_rotated"))[0];
     releaseBalance(Response.json({ balance: 999, credits: 999, currency: "usd", usable_requests: null }));
     await oldRefresh;
-    assert.equal(provider.getUsageSnapshot(rotated).account, undefined);
-    await assert.rejects(provider.provideLanguageModelChatResponse(a, [], options, { report() {} }, source.token), /changed or was forgotten/);
-    const returned = (await prepare("native-a", "synthetic_a"))[0];
+    assert.equal(provider.getUsageSnapshot(rotated.credentialRef).account, undefined);
+    // Key-scoped credentials keep handles valid while their key stays provisioned.
+    assert.equal(provider.getFeatureApiKey(), "synthetic_rotated");
+    const returned = (await prepare("synthetic_a"))[0];
     assert.equal(returned.id, a.id);
-    await assert.rejects(provider.provideLanguageModelChatResponse(a, [], options, { report() {} }, source.token), /changed or was forgotten/);
+    assert.equal(returned.credentialRef, a.credentialRef);
+    assert.equal(provider.getFeatureApiKey(), "synthetic_a", "Rotate-back restores the active key");
     for (const mode of ["incomplete", "error"]) {
       streamMode = mode;
       const parts = [];
@@ -124,26 +122,13 @@ async function run() {
     await provider.provideLanguageModelChatResponse(returned, [], options, { report() { cancellation.cancel(); } }, cancellation.token);
     assert.equal(signals.at(-1).aborted, true);
     cancellation.dispose();
-    await provider.forgetEntry("native-a");
-    assert.throws(() => provider.getFeatureApiKey("inlineSuggestionsEntry"), /Select an available/);
-    assert.deepEqual(await prepare("native-a", "synthetic_a"), []);
-    assert.equal(Object.keys(provider.getObservedEntries()).length, 1);
-    assert.deepEqual(Object.keys(provider.getObservedEntries()["native-b"]).sort(), ["modelCount", "updatedAt"]);
-    const restarted = new AmpersandProvider({ appendLine() {} }, "native-test", state, {}, fetcher);
-    assert.equal(restarted.getEntries().length, 0);
-    assert.deepEqual(await restarted.provideLanguageModelChatInformation({ configuration: { entryId: "native-a", apiKey: "synthetic_a" } }, source.token), []);
-    await restarted.restoreEntry("native-a");
-    const restored = await restarted.provideLanguageModelChatInformation({ configuration: { entryId: "native-a", apiKey: "synthetic_a" } }, source.token);
-    assert.ok(restored.length);
     directoryEmpty = true;
-    assert.deepEqual(await prepare("native-empty", "synthetic_empty"), []);
-    assert.equal(provider.getObservedEntries()["native-empty"].modelCount, 0);
-    await provider.forgetEntry("native-empty");
+    assert.deepEqual(await prepare("synthetic_empty"), []);
+    assert.equal(provider.getFeatureApiKey(), "synthetic_empty");
   } finally {
     source.dispose();
-    for (const name of settings) await configuration.update(name, original[name], vscode.ConfigurationTarget.Global);
   }
   console.log(JSON.stringify({ provider: "ampersand-bridge", passed: true,
-    nativeChecks: "parallel aliases, reasoning closure, raw routing, tool follow-up, inference usage, balance isolation, stale refresh, rotation/removal, incomplete/error/cancellation cleanup" }));
+    nativeChecks: "parallel entries, reasoning closure, raw routing, tool follow-up, inference usage, balance isolation, stale refresh, rotation, rotate-back, incomplete/error/cancellation cleanup" }));
 }
 module.exports = { run };

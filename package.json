@@ -64,22 +64,6 @@
       {
         "command": "ampersandBridge.diagnostics",
         "title": "Ampersand Bridge: Show Diagnostics"
-      },
-      {
-        "command": "ampersandBridge.selectEntry",
-        "title": "Ampersand Bridge: Select Management Entry"
-      },
-      {
-        "command": "ampersandBridge.selectInlineEntry",
-        "title": "Ampersand Bridge: Select Inline Suggestions Entry"
-      },
-      {
-        "command": "ampersandBridge.forgetEntry",
-        "title": "Ampersand Bridge: Forget Native Entry"
-      },
-      {
-        "command": "ampersandBridge.restoreEntry",
-        "title": "Ampersand Bridge: Restore Native Entry"
       }
     ],
     "configuration": {
@@ -189,16 +173,6 @@
           "type": "boolean",
           "default": true,
           "description": "Show Ampersand Bridge credit balance and usage in the status bar. Click to open the usage quick pick."
-        },
-        "ampersandBridge.managementEntry": {
-          "type": "string",
-          "default": "",
-          "description": "Explicit native entryId used for models, usage, and connection tests. Select an available entry through Ampersand Bridge: Manage Connection. No automatic fallback."
-        },
-        "ampersandBridge.inlineSuggestionsEntry": {
-          "type": "string",
-          "default": "",
-          "description": "Explicit native entryId used for inline suggestions. Select an available entry through Ampersand Bridge: Manage Connection. No automatic fallback."
         }
       }
     },
@@ -209,7 +183,6 @@
         "configuration": {
           "type": "object",
           "required": [
-            "entryId",
             "apiKey"
           ],
           "properties": {
@@ -218,14 +191,6 @@
               "title": "Ampersand Bridge API Key",
               "description": "API key for this Ampersand Bridge provider entry. VS Code stores configured secrets securely.",
               "secret": true
-            },
-            "entryId": {
-              "type": "string",
-              "title": "Unique Entry ID",
-              "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
-              "minLength": 1,
-              "maxLength": 64,
-              "description": "Unique stable ID for this entry, such as personal or work. Keep it when rotating the key. Native group names are display labels and do not identify credentials."
             }
           }
         }

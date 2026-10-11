@@ -71,12 +71,12 @@ flowchart TD
 
 Key properties:
 
-- Native provider entries require a unique stable `entryId`; VS Code owns the
-  API keys and the extension keeps provisioned keys only in memory. Rotations
-  retire stale model handles, and forgotten entry IDs persist as tombstones.
+- Native provider entries carry only a VS Code-owned API key; the extension
+  keeps provisioned keys only in memory and tracks no entry identifiers. The
+  editor namespaces model identifiers per entry group.
 - The live `/v1/models` response, including an empty directory, is
-  authoritative for that entry and persisted per credential. A refused key
-  (HTTP 401/403) lists no models. Cached or fallback models are served only
+  authoritative for that credential and persisted per key fingerprint. A refused
+  key (HTTP 401/403) lists no models. Cached or fallback models are served only
   when a refresh fails.
 - Streaming is incremental. A request-scoped reporter emits thinking before
   text, closes it before tools and at every terminal path, and assigns

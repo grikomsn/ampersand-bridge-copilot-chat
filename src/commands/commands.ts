@@ -17,10 +17,6 @@ export function registerCommands(
 ): vscode.Disposable[] {
   return [
     vscode.commands.registerCommand("ampersandBridge.manage", () => manage(provider, output, usageStatus)),
-    vscode.commands.registerCommand("ampersandBridge.selectEntry", () => selectEntry(provider, "managementEntry")),
-    vscode.commands.registerCommand("ampersandBridge.selectInlineEntry", () => selectEntry(provider, "inlineSuggestionsEntry")),
-    vscode.commands.registerCommand("ampersandBridge.forgetEntry", () => forgetEntry(provider)),
-    vscode.commands.registerCommand("ampersandBridge.restoreEntry", () => restoreEntry(provider)),
     vscode.commands.registerCommand("ampersandBridge.refreshModels", () => refreshModels(provider)),
     vscode.commands.registerCommand("ampersandBridge.setInlineSuggestionsModel", () => setInlineSuggestionsModel()),
     vscode.commands.registerCommand("ampersandBridge.showUsage", () => showUsage(provider, output)),
@@ -37,25 +33,17 @@ async function manage(
 ): Promise<void> {
   const choices = [
     { label: "$(settings-gear) Manage Language Models", action: "models" },
-    { label: "$(account) Select management entry", action: "entry" },
-    { label: "$(zap) Select inline suggestions entry", action: "inlineEntry" },
-    { label: "$(check) Test selected entry inference", action: "test" },
-    { label: "$(refresh) Refresh selected entry models", action: "refresh" },
+    { label: "$(check) Test inference", action: "test" },
+    { label: "$(refresh) Refresh hosted models", action: "refresh" },
     { label: "$(zap) Set inline suggestions model", action: "inlineModel" },
-    { label: "$(credit-card) Show selected entry usage and credits", action: "usage" },
-    { label: "$(trash) Forget entry before removing it", action: "forget" },
-    { label: "$(history) Restore forgotten native entry", action: "restore" },
+    { label: "$(credit-card) Show usage and credits", action: "usage" },
     { label: "$(link-external) Open Ampersand Bridge API keys", action: "open" },
     { label: "$(output) Show Ampersand Bridge logs", action: "logs" },
     { label: "$(info) Show diagnostics", action: "diagnostics" },
   ];
-  const picked = await vscode.window.showQuickPick(choices, { title: "Ampersand Bridge — Manage native entries" });
+  const picked = await vscode.window.showQuickPick(choices, { title: "Ampersand Bridge — Manage connection" });
   if (!picked) return;
   if (picked.action === "models") await vscode.commands.executeCommand("workbench.action.chat.manageLanguageModels");
-  else if (picked.action === "entry") await selectEntry(provider, "managementEntry");
-  else if (picked.action === "inlineEntry") await selectEntry(provider, "inlineSuggestionsEntry");
-  else if (picked.action === "forget") await forgetEntry(provider);
-  else if (picked.action === "restore") await restoreEntry(provider);
   else if (picked.action === "refresh") await refreshModels(provider);
   else if (picked.action === "inlineModel") await setInlineSuggestionsModel();
   else if (picked.action === "test") await testConnection(provider, output);
@@ -64,34 +52,6 @@ async function manage(
   else if (picked.action === "logs") output.show(true);
   else if (picked.action === "diagnostics") await diagnostics(provider, output);
   void usageStatus;
-}
-
-async function selectEntry(provider: AmpersandProvider, setting: string): Promise<void> {
-  const picked = await vscode.window.showQuickPick(provider.getEntries().map(({ entryId }) => ({ label: entryId })), {
-    title: "Ampersand Bridge — Select native entry", placeHolder: "Add entries with unique entryId values in Manage Language Models",
-  });
-  if (!picked) return;
-  await vscode.workspace.getConfiguration(CONFIG_SECTION).update(setting, picked.label, vscode.ConfigurationTarget.Global);
-  provider.fireDidChange();
-}
-
-async function forgetEntry(provider: AmpersandProvider): Promise<void> {
-  const ids = new Set([...provider.getEntries().map(({ entryId }) => entryId), ...Object.keys(provider.getObservedEntries())]);
-  const picked = await vscode.window.showQuickPick([...ids].map((label) => ({ label })), {
-    title: "Ampersand Bridge — Forget entry", placeHolder: "Retire cached catalogs and usage before removing the native entry",
-  });
-  if (!picked) return;
-  await provider.forgetEntry(picked.label);
-  await vscode.commands.executeCommand("workbench.action.chat.manageLanguageModels");
-}
-
-async function restoreEntry(provider: AmpersandProvider): Promise<void> {
-  const picked = await vscode.window.showQuickPick(provider.getForgottenEntries().map((label) => ({ label })), {
-    title: "Ampersand Bridge — Restore native entry", placeHolder: "Allow VS Code to provision this ID again",
-  });
-  if (!picked) return;
-  await provider.restoreEntry(picked.label);
-  await vscode.commands.executeCommand("workbench.action.chat.manageLanguageModels");
 }
 
 async function refreshModels(provider: AmpersandProvider): Promise<void> {
@@ -203,14 +163,12 @@ async function showUsage(provider: AmpersandProvider, output: vscode.OutputChann
 
 async function diagnostics(provider: AmpersandProvider, output: vscode.OutputChannel): Promise<void> {
   const models = await vscode.lm.selectChatModels({ vendor: "ampersand-bridge" });
-  const entries = provider.getEntries();
   const lines = [
     "# Ampersand Bridge for GitHub Copilot diagnostics",
     "",
     `- VS Code: ${vscode.version}`,
     `- API endpoint: ${API_BASE}`,
     "- Service: ai& hosted API (independent extension, not affiliated with ai&)",
-    `- Native entries: ${entries.length ? entries.map(({ entryId }) => entryId).join(", ") : "none"}`,
     `- Default reasoning effort: ${vscode.workspace.getConfiguration("ampersandBridge").get("reasoningEffort", "high")}`,
     `- Registered models: ${models.length}`,
     "",

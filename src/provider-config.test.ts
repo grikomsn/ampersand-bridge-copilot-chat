@@ -29,8 +29,9 @@ test("declares native API-key configuration without a management-command overrid
     required?: string[];
     properties?: Record<string, { secret?: boolean }>;
   };
-  assert.deepEqual(configuration.required, ["entryId", "apiKey"]);
+  assert.deepEqual(configuration.required, ["apiKey"]);
   assert.equal(configuration.properties?.apiKey.secret, true);
+  assert.equal(configuration.properties?.entryId, undefined);
 });
 
 test("declares the rebranded extension identity and activation event", () => {
@@ -55,15 +56,11 @@ test("names the extension Ampersand Bridge while the service stays ai&", () => {
   assert.match(inlineSuggestions?.description ?? "", /ai& service/);
 });
 
-test("keeps native-entry management and provider commands available", () => {
+test("keeps connection commands and removes entry-selection workflows", () => {
   const manifest = readManifest();
   const commandIds = manifest.contributes.commands.map((item) => item.command);
   for (const command of [
     "manage",
-    "selectEntry",
-    "selectInlineEntry",
-    "forgetEntry",
-    "restoreEntry",
     "refreshModels",
     "setInlineSuggestionsModel",
     "showUsage",
@@ -81,6 +78,10 @@ test("keeps native-entry management and provider commands available", () => {
     "configureGatewaySession",
     "removeGatewaySession",
     "openUsage",
+    "selectEntry",
+    "selectInlineEntry",
+    "forgetEntry",
+    "restoreEntry",
   ]) {
     assert.ok(!commandIds.includes(`ampersandBridge.${command}`), `unexpected command: ${command}`);
   }
