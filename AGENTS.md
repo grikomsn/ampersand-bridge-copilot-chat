@@ -29,7 +29,7 @@
 - `npm test` or `npm run check` — compile and run all Node test files.
 - `npm run package` — validate and build the installable VSIX.
 - `npm run watch` — compile continuously; press F5 with the launch configuration for an Extension Development Host.
-- `npm run refresh-models` — report hosted-model drift; `--apply` edits bundled metadata, `--pr` opens a resync pull request.
+- `npm run refresh-models` — report hosted-model drift; `--apply` edits bundled metadata, `--pr` opens a resync pull request. The script `require()`s compiled `out/` modules, so run `npm run compile` first or it exits with a one-line failure; a fresh compile is always the fix. The public `/v1/models` probe needs no API key; `AMPERSAND_API_KEY` matters only for `--pr` under CI.
 
 ## Working agreements
 
