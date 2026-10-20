@@ -1,5 +1,7 @@
 import * as vscode from "vscode";
 import { randomUUID } from "node:crypto";
+import { estimateChatTokens } from "./provider/token-count";
+import { withContextOverflowHint } from "./provider/context-error";
 import { messageOf } from "./errors";
 import {
   advertisedModelLimits,
@@ -340,7 +342,7 @@ export class AmpersandProvider implements vscode.LanguageModelChatProvider<Amper
         throw new Error(`Ampersand Bridge request for ${model.rawModelId} received no data for ${idleTimeoutSeconds} seconds`);
       if (timedOut === "total")
         throw new Error(`Ampersand Bridge request for ${model.rawModelId} exceeded ${timeoutSeconds} seconds`);
-      throw error;
+      throw withContextOverflowHint(error);
     } finally {
       reporter.finish();
       controller.abort();
@@ -359,8 +361,7 @@ export class AmpersandProvider implements vscode.LanguageModelChatProvider<Amper
     value: string | vscode.LanguageModelChatRequestMessage,
     _token: vscode.CancellationToken,
   ): Promise<number> {
-    const text = typeof value === "string" ? value : messageToText(value);
-    return Math.max(1, Math.ceil(text.length / 4));
+    return estimateChatTokens(value);
   }
 
   async testConnection(): Promise<{
