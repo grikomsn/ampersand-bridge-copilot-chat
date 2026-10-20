@@ -38,6 +38,8 @@ Ampersand Bridge is community-maintained and independent: it is not affiliated w
 
 To use more than one key, add another **Ampersand Bridge** entry with a different name. The entry name is its identity: VS Code namespaces each entry's models per group, stores the key in its secure storage, and offers key updates on the entry. Use **Ampersand Bridge: Manage Connection** to refresh models, test inference, or show usage. Deleting an entry removes its VS Code-owned credential.
 
+Context token counts are estimates. Tool-result text, tool arguments, thinking, and image inputs are included in context budgeting. If the service rejects a full context window, run `/compact` in Copilot Chat, reduce attachments or tool output, or start a new chat.
+
 ## Documentation
 
 - [Setup, settings, and troubleshooting](docs/setup.md)
