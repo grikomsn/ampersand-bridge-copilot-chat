@@ -17,8 +17,13 @@ export const INLINE_MAX_TOKENS_SETTING = "inlineSuggestionsMaxTokens";
 export const INLINE_PREFIX_LINES_SETTING = "inlineSuggestionsPrefixLines";
 export const INLINE_SUFFIX_CHARS_SETTING = "inlineSuggestionsSuffixChars";
 
-/** Sensible low-latency default for inline suggestions. */
-export const DEFAULT_INLINE_MODEL = "deepseek-ai/deepseek-v4-flash";
+/**
+ * Sensible low-latency default for inline suggestions.
+ *
+ * `deepseek-ai/deepseek-v4-flash` reaches end of support on 2026-10-27, so
+ * the default points at its replacement, `deepseek-ai/deepseek-v4.1-flash`.
+ */
+export const DEFAULT_INLINE_MODEL = "deepseek-ai/deepseek-v4.1-flash";
 export const DEFAULT_INLINE_DEBOUNCE_MS = 300;
 export const DEFAULT_INLINE_TIMEOUT_MS = 3_000;
 export const DEFAULT_INLINE_MAX_TOKENS = 128;

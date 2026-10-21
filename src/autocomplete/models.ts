@@ -3,11 +3,15 @@
  *
  * Badges carry measured inline-completion latency against api.aiand.com
  * (median time-to-first-byte over a realistic fill-in-the-middle prompt with
- * each model's reasoning-off effort, 2026-09-10). The QuickPick command
- * renders this list and writes the selected id to
+ * each model's reasoning-off effort, 15 interleaved runs, 2026-10-21). The
+ * QuickPick command renders this list and writes the selected id to
  * `ampersandBridge.inlineSuggestionsModel`, so choices need no reload. Unknown
  * model ids stay reachable through the command's custom entry and the raw
  * setting.
+ *
+ * Models whose support ends on 2026-10-27 (`deepseek-ai/deepseek-v4-flash`,
+ * `moonshotai/kimi-k2.7-code`, `zai-org/glm-5.2`) are not offered; their
+ * replacements are listed instead.
  *
  * Pure and unit-tested.
  */
@@ -22,24 +26,14 @@ export interface InlineModelCandidate {
 
 export const INLINE_MODEL_CANDIDATES: readonly InlineModelCandidate[] = [
   {
-    id: "deepseek-ai/deepseek-v4-flash",
-    badge: "★ default · measured ~0.5s TTFB · ~0.8s total",
-    detail: "Fastest full completion; a sensible default for ghost text.",
+    id: "deepseek-ai/deepseek-v4.1-flash",
+    badge: "★ default · measured ~0.8s TTFB",
+    detail: "Replacement for DeepSeek V4 Flash; economical reasoning and long-context work.",
   },
   {
     id: "google/gemma-4-31b-it",
-    badge: "fastest TTFB · measured ~0.5s",
+    badge: "fastest TTFB · measured ~0.4s",
     detail: "Fastest measured first token; image-capable instruct model.",
-  },
-  {
-    id: "qwen/qwen3.6-27b",
-    badge: "measured ~0.5s TTFB",
-    detail: "Fast first token with a compact Qwen model.",
-  },
-  {
-    id: "qwen/qwen3.8-27b",
-    badge: "measured ~0.5s TTFB",
-    detail: "Fast first token with a compact Qwen model.",
   },
   {
     id: "zai-org/glm-5.3",
@@ -47,9 +41,19 @@ export const INLINE_MODEL_CANDIDATES: readonly InlineModelCandidate[] = [
     detail: "GLM model; reasoning runs at its lightest supported effort.",
   },
   {
-    id: "deepseek-ai/deepseek-v4-pro",
-    badge: "measured ~0.7s TTFB · larger",
-    detail: "Larger DeepSeek model; prefer the flash tier for inline latency.",
+    id: "qwen/qwen3.6-27b",
+    badge: "measured ~0.6s TTFB",
+    detail: "Fast first token with a compact Qwen model.",
+  },
+  {
+    id: "motif-technologies/motif-3",
+    badge: "measured ~0.6s TTFB",
+    detail: "Motif chat model; slower first token than the flash tiers.",
+  },
+  {
+    id: "zai-org/glm-5.3-flash",
+    badge: "measured ~0.7s TTFB",
+    detail: "Replacement for GLM 5.2; multimodal with a million-token context.",
   },
   {
     id: "openai/gpt-oss-120b",
@@ -57,24 +61,19 @@ export const INLINE_MODEL_CANDIDATES: readonly InlineModelCandidate[] = [
     detail: "Cheapest per-token Ampersand Bridge model; reasoning runs at its lightest supported effort.",
   },
   {
-    id: "motif-technologies/motif-3",
-    badge: "measured ~0.8s TTFB",
-    detail: "Motif chat model; slower first token than the flash tiers.",
-  },
-  {
     id: "moonshotai/kimi-k3",
     badge: "measured ~0.9s TTFB · larger",
-    detail: "Large Kimi model; prefer smaller tiers for inline latency.",
+    detail: "Replacement for Kimi K2.7 Code; prefer smaller tiers for inline latency.",
   },
   {
-    id: "zai-org/glm-5.2",
-    badge: "measured ~1.0s TTFB",
-    detail: "GLM model; slower first token than the flash tiers.",
+    id: "qwen/qwen3.8-27b",
+    badge: "measured ~0.9s TTFB",
+    detail: "Fast first token with a compact Qwen model.",
   },
   {
-    id: "moonshotai/kimi-k2.7-code",
-    badge: "code-tuned · always reasons",
-    detail: "Only accepts high effort; reasons before emitting, so ghost text is delayed and may stay empty.",
+    id: "deepseek-ai/deepseek-v4-pro",
+    badge: "measured ~0.9s TTFB · larger",
+    detail: "Larger DeepSeek model; prefer the flash tier for inline latency.",
   },
 ];
 

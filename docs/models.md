@@ -13,23 +13,22 @@ the hosted catalog snapshot; live values always win over bundled rows, and
 models.dev metadata fills gaps for unknown models without ever widening an
 authoritative live effort list.
 
-Snapshot checked against the hosted catalog on 2026-10-09.
+Snapshot checked against the hosted catalog on 2026-10-21.
 
 | Model | ID | Context | Max output | Image input | Reasoning efforts (default) |
 |---|---|---|---|---|---|
 | GPT OSS 120B | `openai/gpt-oss-120b` | 131K | 32K | — | low / medium / high (medium) |
 | DeepSeek V4.1 Flash | `deepseek-ai/deepseek-v4.1-flash` | 1M | 384K | ✓ | none / high / max (high) |
-| DeepSeek V4 Flash | `deepseek-ai/deepseek-v4-flash` | 1M | 384K | — | none / high / max (high) |
 | DeepSeek V4 Pro | `deepseek-ai/deepseek-v4-pro` | 1M | 384K | — | none / high / max (high) |
 | Kimi K3 | `moonshotai/kimi-k3` | 1M | 131K | ✓ | low / high / max (max) |
-| Kimi K2.7 Code | `moonshotai/kimi-k2.7-code` | 262K | 262K | ✓ | high (high) |
 | GLM 5.3 Flash | `zai-org/glm-5.3-flash` | ~1M (1,048,550) | 131K | ✓ | low / high / max (max) |
 | GLM 5.3 | `zai-org/glm-5.3` | 1M | 131K | — | low / high / max (max) |
-| GLM 5.2 | `zai-org/glm-5.2` | 1M | 131K | — | none / high / max (max) |
 | Gemma 4 31B IT | `google/gemma-4-31b-it` | 262K | 32K | ✓ | none / high (none) |
 | Qwen 3.8 27B | `qwen/qwen3.8-27b` | 262K | 32K | ✓ | none / low / medium / xhigh (xhigh) |
 | Qwen 3.6 27B | `qwen/qwen3.6-27b` | 262K | 65K | ✓ | none / high (high) |
 | Motif 3 | `motif-technologies/motif-3` | 262K | 262K | — | none / high (high) |
+
+DeepSeek V4 Flash, Kimi K2.7 Code, and GLM 5.2 were removed ahead of their 2026-10-27 end of support. The recommended replacements are DeepSeek V4.1 Flash for DeepSeek, Kimi K3 for Kimi, and GLM 5.3 Flash for GLM. The ai& service still serves the retiring ids until that date, so the extension filters them out of the picker, the inline-suggestion candidate list, and persisted per-credential snapshots rather than offering a model that will stop working.
 
 ## Reasoning efforts
 
@@ -38,8 +37,8 @@ picker shows a **Reasoning Effort** selection restricted to that list. The
 workspace default (`ampersandBridge.reasoningEffort`) is used when the model
 accepts it; otherwise the model's own default applies. Sending an unsupported
 effort fails upstream with an HTTP 400, so unsupported values are never sent.
-Kimi K2.7 Code only accepts `high`, which is why inline suggestions recommend
-other models.
+Kimi K3 accepts `low`, `high`, and `max` but not `none`, so inline suggestions
+recommend other models.
 
 ## Context window tiers
 
@@ -57,13 +56,10 @@ picker's price labels; live catalog pricing wins when present:
 |---|---|---|---|
 | `openai/gpt-oss-120b` | $0.15 | $0.08 | $0.60 |
 | `deepseek-ai/deepseek-v4.1-flash` | $0.30 | $0.02 | $0.60 |
-| `deepseek-ai/deepseek-v4-flash` | $0.15 | $0.08 | $0.25 |
 | `deepseek-ai/deepseek-v4-pro` | $1.00 | $0.25 | $2.50 |
 | `moonshotai/kimi-k3` | $3.00 | $0.50 | $12.50 |
-| `moonshotai/kimi-k2.7-code` | $0.75 | $0.20 | $3.50 |
 | `zai-org/glm-5.3-flash` | $0.15 | $0.03 | $0.50 |
 | `zai-org/glm-5.3` | $1.00 | $0.30 | $4.00 |
-| `zai-org/glm-5.2` | $1.00 | $0.30 | $4.00 |
 | `google/gemma-4-31b-it` | $0.20 | $0.05 | $0.50 |
 | `qwen/qwen3.8-27b` | $0.40 | $0.20 | $3.00 |
 | `qwen/qwen3.6-27b` | $0.32 | $0.20 | $3.20 |

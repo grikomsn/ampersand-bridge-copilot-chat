@@ -18,7 +18,7 @@ async function run() {
     const authorization = new Headers(init.headers).get("Authorization");
     if (path.includes("models.dev")) return Response.json({});
     if (path.endsWith("/models")) return Response.json({ data: directoryEmpty ? [] : [
-      { id: "deepseek-ai/deepseek-v4-flash", tool_calling: true, context_length: 32768, max_output_tokens: 4096,
+      { id: "deepseek-ai/deepseek-v4.1-flash", tool_calling: true, context_length: 32768, max_output_tokens: 4096,
         reasoning_efforts: ["none", "high"], reasoning_effort_default: "none" },
       { id: "synthetic-byok", tool_calling: true, context_length: 32768, max_output_tokens: 4096 },
     ] });
@@ -64,9 +64,9 @@ async function run() {
   try {
     const aModels = await prepare("synthetic_a");
     const bModels = await prepare("synthetic_b");
-    const a = aModels.find((model) => model.rawModelId === "deepseek-ai/deepseek-v4-flash");
+    const a = aModels.find((model) => model.rawModelId === "deepseek-ai/deepseek-v4.1-flash");
     const b = bModels.find((model) => model.rawModelId === "synthetic-byok");
-    assert.equal(a.id, "deepseek-ai/deepseek-v4-flash", "Model ids are raw hosted ids; the host namespaces per group");
+    assert.equal(a.id, "deepseek-ai/deepseek-v4.1-flash", "Model ids are raw hosted ids; the host namespaces per group");
     assert.notEqual(a.credentialRef, b.credentialRef);
     assert.equal(provider.getFeatureApiKey(), "synthetic_b", "Active key follows the most recent provisioning");
     const output = [];
@@ -77,7 +77,7 @@ async function run() {
     assert.equal(new Set(calls.map((part) => part.callId)).size, 3);
     assert.equal(output[1].metadata.vscode_reasoning_done, true);
     assert.equal(sent.at(-1).authorization, "Bearer synthetic_a");
-    assert.equal(sent.at(-1).body.model, "deepseek-ai/deepseek-v4-flash");
+    assert.equal(sent.at(-1).body.model, "deepseek-ai/deepseek-v4.1-flash");
     assert.equal(sent.at(-1).body.reasoning_effort, "high");
     const history = [vscode.LanguageModelChatMessage.User("synthetic prompt"), vscode.LanguageModelChatMessage.Assistant(calls),
       vscode.LanguageModelChatMessage.User(calls.map((call) => new vscode.LanguageModelToolResultPart(call.callId,

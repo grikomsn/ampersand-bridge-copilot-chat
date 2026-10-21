@@ -30,6 +30,12 @@ test("pins an unlisted current value above the vetted list", () => {
   assert.equal(choices[1]?.id, DEFAULT_INLINE_MODEL);
 });
 
+test("retired models are absent from inline-completion choices", () => {
+  for (const id of ["deepseek-ai/deepseek-v4-flash", "moonshotai/kimi-k2.7-code", "zai-org/glm-5.2"]) {
+    assert.equal(INLINE_MODEL_CANDIDATES.some((candidate) => candidate.id === id), false, id);
+  }
+});
+
 test("marks the current value with a check without pinning duplicates", () => {
   const choices = inlineModelChoices(DEFAULT_INLINE_MODEL);
   assert.equal(choices[0]?.label, `$(check) ${DEFAULT_INLINE_MODEL}`);

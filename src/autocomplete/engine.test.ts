@@ -37,7 +37,7 @@ test("streams a completion and sends the reasoning-off payload", async () => {
     },
   });
   const result = await engine.complete(
-    { prefix: "p", suffix: "s", modelId: "deepseek-ai/deepseek-v4-flash", maxTokens: 128, reasoningEfforts: ["none", "high"] },
+    { prefix: "p", suffix: "s", modelId: "deepseek-ai/deepseek-v4.1-flash", maxTokens: 128, reasoningEfforts: ["none", "high"] },
     new AbortController().signal,
   );
   assert.equal(result.text, "out.append");
@@ -50,7 +50,7 @@ test("streams a completion and sends the reasoning-off payload", async () => {
     messages: Array<{ role: string; content: string }>;
   };
   assert.equal(requests[0]?.url, AMPERSAND_ENDPOINTS.chat);
-  assert.equal(body.model, "deepseek-ai/deepseek-v4-flash");
+  assert.equal(body.model, "deepseek-ai/deepseek-v4.1-flash");
   assert.equal(body.reasoning_effort, "none");
   assert.equal(body.stream, true);
   assert.equal(body.max_tokens, 128);
@@ -87,7 +87,7 @@ test("never echoes upstream error bodies", async () => {
     fetcher: async () => new Response('{"error":"prompt context leak"}', { status: 401 }),
   });
   await assert.rejects(
-    engine.complete({ prefix: "p", suffix: "s", modelId: "deepseek-ai/deepseek-v4-flash", maxTokens: 8 }, new AbortController().signal),
+    engine.complete({ prefix: "p", suffix: "s", modelId: "deepseek-ai/deepseek-v4.1-flash", maxTokens: 8 }, new AbortController().signal),
     (error: unknown) => error instanceof Error && error.message === "Ampersand Bridge completion request failed (401)",
   );
 });
@@ -105,7 +105,7 @@ test("aborted caller signal surfaces as a quiet no-result", async () => {
     },
   });
   const result = await engine.complete(
-    { prefix: "p", suffix: "s", modelId: "deepseek-ai/deepseek-v4-flash", maxTokens: 8 },
+    { prefix: "p", suffix: "s", modelId: "deepseek-ai/deepseek-v4.1-flash", maxTokens: 8 },
     controller.signal,
   );
   assert.equal(result.text, undefined);
