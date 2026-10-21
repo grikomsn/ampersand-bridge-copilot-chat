@@ -5,13 +5,10 @@ import type { ReasoningEffort } from "./options";
 export const FALLBACK_MODELS = [
   "openai/gpt-oss-120b",
   "deepseek-ai/deepseek-v4.1-flash",
-  "deepseek-ai/deepseek-v4-flash",
   "deepseek-ai/deepseek-v4-pro",
   "moonshotai/kimi-k3",
-  "moonshotai/kimi-k2.7-code",
   "zai-org/glm-5.3-flash",
   "zai-org/glm-5.3",
-  "zai-org/glm-5.2",
   "google/gemma-4-31b-it",
   "qwen/qwen3.8-27b",
   "qwen/qwen3.6-27b",
@@ -20,6 +17,18 @@ export const FALLBACK_MODELS = [
 
 export const DEFAULT_MAX_INPUT_TOKENS = 262_144;
 export const DEFAULT_MAX_OUTPUT_TOKENS = 131_072;
+
+/**
+ * Hosted models whose support ends on 2026-10-27. The service keeps serving
+ * them until then, so the catalog hides them ahead of the cutover and points
+ * at their replacements instead: DeepSeek V4 Flash → DeepSeek V4.1 Flash,
+ * Kimi K2.7 Code → Kimi K3, and GLM 5.2 → GLM 5.3 Flash.
+ */
+const RETIRED_MODEL_IDS: ReadonlySet<string> = new Set([
+  "deepseek-ai/deepseek-v4-flash",
+  "moonshotai/kimi-k2.7-code",
+  "zai-org/glm-5.2",
+]);
 
 /**
  * Fallback per-model reasoning efforts captured from the live Ampersand Bridge catalog
@@ -33,13 +42,10 @@ const FALLBACK_REASONING_EFFORTS: Readonly<Record<string, {
 }>> = {
   "openai/gpt-oss-120b": { efforts: ["low", "medium", "high"], defaultEffort: "medium" },
   "deepseek-ai/deepseek-v4.1-flash": { efforts: ["none", "high", "max"], defaultEffort: "high" },
-  "deepseek-ai/deepseek-v4-flash": { efforts: ["none", "high", "max"], defaultEffort: "high" },
   "deepseek-ai/deepseek-v4-pro": { efforts: ["none", "high", "max"], defaultEffort: "high" },
   "moonshotai/kimi-k3": { efforts: ["low", "high", "max"], defaultEffort: "max" },
-  "moonshotai/kimi-k2.7-code": { efforts: ["high"], defaultEffort: "high" },
   "zai-org/glm-5.3-flash": { efforts: ["low", "high", "max"], defaultEffort: "max" },
   "zai-org/glm-5.3": { efforts: ["low", "high", "max"], defaultEffort: "max" },
-  "zai-org/glm-5.2": { efforts: ["none", "high", "max"], defaultEffort: "max" },
   "google/gemma-4-31b-it": { efforts: ["none", "high"], defaultEffort: "none" },
   "qwen/qwen3.8-27b": { efforts: ["none", "low", "medium", "xhigh"], defaultEffort: "xhigh" },
   "qwen/qwen3.6-27b": { efforts: ["none", "high"], defaultEffort: "high" },
@@ -93,13 +99,10 @@ export interface AmpersandApiModel {
 const OFFICIAL_MODEL_NAMES: Readonly<Record<string, string>> = {
   "openai/gpt-oss-120b": "GPT OSS 120B",
   "deepseek-ai/deepseek-v4.1-flash": "DeepSeek V4.1 Flash",
-  "deepseek-ai/deepseek-v4-flash": "DeepSeek V4 Flash",
   "deepseek-ai/deepseek-v4-pro": "DeepSeek V4 Pro",
   "moonshotai/kimi-k3": "Kimi K3",
-  "moonshotai/kimi-k2.7-code": "Kimi K2.7 Code",
   "zai-org/glm-5.3-flash": "GLM 5.3 Flash",
   "zai-org/glm-5.3": "GLM 5.3",
-  "zai-org/glm-5.2": "GLM 5.2",
   "google/gemma-4-31b-it": "Gemma 4 31B IT",
   "qwen/qwen3.8-27b": "Qwen 3.8 27B",
   "qwen/qwen3.6-27b": "Qwen 3.6 27B",
@@ -119,13 +122,10 @@ const VENDOR_LABELS: Readonly<Record<string, string>> = {
 export const FALLBACK_MODEL_METADATA: readonly AmpersandModelMetadata[] = [
   model("openai/gpt-oss-120b", 131_072, 32_768),
   model("deepseek-ai/deepseek-v4.1-flash", 1_048_576, 384_000, true),
-  model("deepseek-ai/deepseek-v4-flash", 1_048_576, 384_000),
   model("deepseek-ai/deepseek-v4-pro", 1_048_576, 384_000),
   model("moonshotai/kimi-k3", 1_048_576, 131_072, true),
-  model("moonshotai/kimi-k2.7-code", 262_144, 262_144, true),
   model("zai-org/glm-5.3-flash", 1_048_550, 131_072, true),
   model("zai-org/glm-5.3", 1_048_576, 131_072),
-  model("zai-org/glm-5.2", 1_048_576, 131_072),
   model("google/gemma-4-31b-it", 262_144, 32_768, true),
   model("qwen/qwen3.8-27b", 262_144, 32_768, true),
   model("qwen/qwen3.6-27b", 262_144, 65_536, true),
@@ -140,12 +140,19 @@ export function isAmpersandChatModel(id: string): boolean {
   return Boolean(value) && !/(?:^|[-/])(point|embed(?:ding)?s?|image|video|audio|voice|rerank)(?:[-/.]|$)/.test(value);
 }
 
+/** Whether the hosted model id reaches its end of support and leaves the picker. */
+export function isRetiredModel(id: string): boolean {
+  return RETIRED_MODEL_IDS.has(id.trim().toLowerCase());
+}
+
 export function orderModels(ids: readonly string[]): string[] {
-  return [...new Set(ids.map(canonicalModelId))].filter(isAmpersandChatModel).sort((left, right) => {
-    const leftRank = PREFERRED_ORDER.get(left) ?? Number.MAX_SAFE_INTEGER;
-    const rightRank = PREFERRED_ORDER.get(right) ?? Number.MAX_SAFE_INTEGER;
-    return leftRank - rightRank || left.localeCompare(right);
-  });
+  return [...new Set(ids.map(canonicalModelId))]
+    .filter((id) => isAmpersandChatModel(id) && !isRetiredModel(id))
+    .sort((left, right) => {
+      const leftRank = PREFERRED_ORDER.get(left) ?? Number.MAX_SAFE_INTEGER;
+      const rightRank = PREFERRED_ORDER.get(right) ?? Number.MAX_SAFE_INTEGER;
+      return leftRank - rightRank || left.localeCompare(right);
+    });
 }
 
 export function getModelMetadata(id: string): AmpersandModelMetadata {

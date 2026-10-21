@@ -1,12 +1,19 @@
 import type { AmpersandModelMetadata } from "./catalog";
+import { isRetiredModel } from "./catalog";
 
 export function parseCatalogSnapshots(value: unknown): Record<string, AmpersandModelMetadata[]> {
   if (!record(value)) return {};
   return Object.fromEntries(
     Object.entries(value).flatMap(([credentialRef, raw]) => {
       if (!Array.isArray(raw)) return [];
+      // A snapshot written before a model reached end of support can still hold
+      // it. Retired ids are dropped on their own, without invalidating the
+      // rest of the snapshot the way a malformed entry would.
       const models = raw.flatMap((entry) => (validModel(entry) ? [entry] : []));
-      return models.length === raw.length ? [[credentialRef, models]] : [];
+      if (models.length !== raw.length) return [];
+      // Retired ids are dropped on their own, without invalidating the rest of
+      // the snapshot the way a malformed entry would.
+      return [[credentialRef, models.filter((model) => !isRetiredModel(model.id))]];
     }),
   );
 }

@@ -3,6 +3,8 @@ import test from "node:test";
 import {
   advertisedModelLimits,
   FALLBACK_MODELS,
+  FALLBACK_MODEL_METADATA,
+  isRetiredModel,
   modelCatalogFromApi,
   formatModelName,
   formatTokenLimit,
@@ -15,18 +17,46 @@ import {
 
 test("accepts Ampersand Bridge chat model IDs and excludes non-chat families", () => {
   assert.equal(isAmpersandChatModel("deepseek-ai/deepseek-v4-pro"), true);
-  assert.equal(isAmpersandChatModel("moonshotai/kimi-k2.7-code"), true);
+  assert.equal(isAmpersandChatModel("moonshotai/kimi-k3"), true);
   assert.equal(isAmpersandChatModel("multilingual-e5-large-instruct"), true);
   assert.equal(isAmpersandChatModel("text-embedding-3-large"), false);
   assert.equal(isAmpersandChatModel("image/generator"), false);
 });
 
+test("drops models whose support ends on 2026-10-27", () => {
+  for (const retired of [
+    "deepseek-ai/deepseek-v4-flash",
+    "moonshotai/kimi-k2.7-code",
+    "zai-org/glm-5.2",
+  ]) {
+    assert.equal(isRetiredModel(retired), true, retired);
+    assert.deepEqual(orderModels([retired]), [], retired);
+    assert.deepEqual(orderModelMetadata([{ id: retired }]), [], retired);
+  }
+  // Their replacements stay in the picker.
+  for (const replacement of [
+    "deepseek-ai/deepseek-v4.1-flash",
+    "moonshotai/kimi-k3",
+    "zai-org/glm-5.3-flash",
+  ]) {
+    assert.equal(isRetiredModel(replacement), false, replacement);
+    assert.deepEqual(orderModels([replacement]), [replacement]);
+  }
+});
+
+test("keeps retired models out of the bundled fallback catalog", () => {
+  for (const retired of ["deepseek-ai/deepseek-v4-flash", "moonshotai/kimi-k2.7-code", "zai-org/glm-5.2"]) {
+    assert.equal(FALLBACK_MODELS.includes(retired as never), false, retired);
+    assert.equal(FALLBACK_MODEL_METADATA.some((model) => model.id === retired), false, retired);
+  }
+});
+
 test("orders documented fallback models before other discovered models", () => {
   assert.deepEqual(
-    orderModels(["future-chat", "zai-org/glm-5.2", "OPENAI/GPT-OSS-120B", "openai/gpt-oss-120b"]),
+    orderModels(["future-chat", "zai-org/glm-5.3", "OPENAI/GPT-OSS-120B", "openai/gpt-oss-120b"]),
     [
       "openai/gpt-oss-120b",
-      "zai-org/glm-5.2",
+      "zai-org/glm-5.3",
       "future-chat",
     ],
   );
@@ -34,7 +64,7 @@ test("orders documented fallback models before other discovered models", () => {
 
 test("formats model IDs for the VS Code picker", () => {
   assert.equal(formatModelName("deepseek-ai/deepseek-v4-pro"), "DeepSeek V4 Pro");
-  assert.equal(formatModelName("zai-org/glm-5.2"), "GLM 5.2");
+  assert.equal(formatModelName("zai-org/glm-5.3"), "GLM 5.3");
   assert.equal(formatModelName("openai/gpt-oss-120b"), "GPT OSS 120B");
   assert.equal(formatModelName("qwen/qwen3.8-27b"), "Qwen 3.8 27B");
   assert.equal(formatModelName("zai-org/glm-5.4"), "GLM 5.4");
@@ -45,11 +75,10 @@ test("formats model IDs for the VS Code picker", () => {
 
 test("provides documented fallback limits", () => {
   for (const id of [
-    "deepseek-ai/deepseek-v4-flash",
+    "deepseek-ai/deepseek-v4.1-flash",
     "deepseek-ai/deepseek-v4-pro",
     "moonshotai/kimi-k3",
     "zai-org/glm-5.3",
-    "zai-org/glm-5.2",
   ]) {
     assert.equal(getModelMetadata(id).contextLength, 1_048_576);
   }
@@ -59,15 +88,15 @@ test("provides documented fallback limits", () => {
   assert.equal(getModelMetadata("zai-org/glm-5.3-flash").contextLength, 1_048_550);
   assert.equal(getModelMetadata("zai-org/glm-5.3-flash").defaultReasoningEffort, "max");
   assert.equal(getModelMetadata("qwen/qwen3.6-27b").maxOutputTokens, 65_536);
-  assert.deepEqual(getModelMetadata("zai-org/glm-5.2"), {
-    id: "zai-org/glm-5.2",
-    name: "GLM 5.2",
+  assert.deepEqual(getModelMetadata("zai-org/glm-5.3"), {
+    id: "zai-org/glm-5.3",
+    name: "GLM 5.3",
     version: "unknown",
     contextLength: 1_048_576,
     maxOutputTokens: 131_072,
     imageInput: false,
     toolCalling: true,
-    reasoningEfforts: ["none", "high", "max"],
+    reasoningEfforts: ["low", "high", "max"],
     defaultReasoningEffort: "max",
     cost: { input: 1, cacheRead: 0.3, output: 4 },
   });
@@ -118,7 +147,7 @@ test("uses exactly the discovered catalog and advertised metadata", () => {
 test("reads live reasoning_efforts and reasoning_effort_default verbatim", () => {
   const [live] = orderModelMetadata([
     {
-      id: "zai-org/glm-5.2",
+      id: "zai-org/glm-5.3",
       tool_calling: false,
       reasoning_efforts: ["none", "high", "max"],
       reasoning_effort_default: "max",
@@ -133,8 +162,8 @@ test("reads live reasoning_efforts and reasoning_effort_default verbatim", () =>
 
 test("falls back to per-model reasoning efforts when the live catalog omits them", () => {
   assert.deepEqual(getModelMetadata("google/gemma-4-31b-it").reasoningEfforts, ["none", "high"]);
-  assert.deepEqual(getModelMetadata("moonshotai/kimi-k2.7-code").reasoningEfforts, ["high"]);
-  assert.equal(getModelMetadata("moonshotai/kimi-k2.7-code").defaultReasoningEffort, "high");
+  assert.deepEqual(getModelMetadata("moonshotai/kimi-k3").reasoningEfforts, ["low", "high", "max"]);
+  assert.equal(getModelMetadata("moonshotai/kimi-k3").defaultReasoningEffort, "max");
   assert.equal(getModelMetadata("some-unknown-model").reasoningEfforts, undefined);
 });
 
@@ -200,7 +229,7 @@ test("prefers live model pricing and falls back to Ampersand Bridge's official t
   ]);
   assert.deepEqual(live.cost, { input: 1, cacheRead: 0.2, output: 2 });
 
-  const [fallback] = orderModelMetadata([{ id: "zai-org/glm-5.2" }]);
+  const [fallback] = orderModelMetadata([{ id: "zai-org/glm-5.3" }]);
   assert.deepEqual(fallback.cost, {
     input: 1,
     cacheRead: 0.3,
@@ -297,7 +326,7 @@ test("accepts valid limit aliases when earlier fields are malformed", () => {
 });
 
 test("fallback reasoning defaults always belong to a narrowed live list", () => {
-  const [model] = orderModelMetadata([{ id: "zai-org/glm-5.2", reasoning_efforts: ["low", "high"] }]);
+  const [model] = orderModelMetadata([{ id: "zai-org/glm-5.3", reasoning_efforts: ["low", "high"] }]);
   assert.deepEqual(model.reasoningEfforts, ["low", "high"]);
   assert.equal(model.defaultReasoningEffort, "high");
 });

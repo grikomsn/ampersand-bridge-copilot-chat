@@ -76,8 +76,8 @@
         },
         "ampersandBridge.inlineSuggestionsModel": {
           "type": "string",
-          "default": "deepseek-ai/deepseek-v4-flash",
-          "description": "Model id used for inline completions. deepseek-ai/deepseek-v4-flash is the measured low-latency default; the Set Inline Suggestions Model command lists vetted candidates with measured latency badges."
+          "default": "deepseek-ai/deepseek-v4.1-flash",
+          "description": "Model id used for inline completions. deepseek-ai/deepseek-v4.1-flash is the measured low-latency default; the Set Inline Suggestions Model command lists vetted candidates with measured latency badges."
         },
         "ampersandBridge.inlineSuggestionsChatInput": {
           "type": "boolean",

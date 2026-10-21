@@ -53,7 +53,7 @@ All settings live under `ampersandBridge.*`:
 | `showUsageStatusBar` | `true` | Credit-balance status bar item |
 | `debugLogging` | `false` | Model IDs, retries, and usage metadata in the output channel (never prompts or keys) |
 | `inlineSuggestions` | `false` | Opt in to ghost-text inline completions |
-| `inlineSuggestionsModel` | `deepseek-ai/deepseek-v4-flash` | Model id for inline completions |
+| `inlineSuggestionsModel` | `deepseek-ai/deepseek-v4.1-flash` | Model id for inline completions |
 | `inlineSuggestionsChatInput` | `false` | Also complete inside the Copilot Chat prompt box |
 | `inlineSuggestionsDebounceMs` | `300` | Typing debounce (50–2000) |
 | `inlineSuggestionsTimeoutMs` | `3000` | Per-suggestion timeout (500–15000) |

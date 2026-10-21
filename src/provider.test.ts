@@ -3,6 +3,7 @@ import Module from "node:module";
 import test from "node:test";
 import type * as vscode from "vscode";
 import { AMPERSAND_ENDPOINTS } from "./transport/protocol";
+import { credentialReference } from "./auth/auth";
 
 class TextPart { constructor(readonly value: string) {} }
 class ToolCallPart { constructor(readonly callId: string, readonly name: string, readonly input: object) {} }
@@ -120,4 +121,61 @@ test("lists no models when the service refuses the entry key", async () => {
   assert.deepEqual(await provider.provideLanguageModelChatInformation(configuration, token), []);
   // The refused key stays refused across repeat queries within the cache window.
   assert.deepEqual(await provider.provideLanguageModelChatInformation(configuration, token), []);
+});
+
+test("omits models whose support ends from the picker", async () => {
+  const { provider } = setup("", { data: [
+    { id: "deepseek-ai/deepseek-v4-flash" },
+    { id: "moonshotai/kimi-k2.7-code" },
+    { id: "zai-org/glm-5.2" },
+    { id: "deepseek-ai/deepseek-v4.1-flash" },
+  ] });
+  const models = await provider.provideLanguageModelChatInformation(
+    { configuration: { apiKey: "entry-fixture" } },
+    token,
+  );
+  assert.deepEqual(models.map((model) => model.rawModelId), ["deepseek-ai/deepseek-v4.1-flash"]);
+});
+
+test("ignores persisted snapshots that still hold a retired model", async () => {
+  const values = new Map<string, unknown>();
+  const state = {
+    get: (key: string) => values.get(key),
+    update: async (key: string, value: unknown) => { values.set(key, value); },
+    keys: () => [...values.keys()],
+  } as unknown as vscode.Memento;
+  // A snapshot written before the model reached end of support.
+  values.set("ampersandBridge.entryCatalogs.v1", {
+    [credentialReference("entry-fixture")]: [
+      {
+        id: "deepseek-ai/deepseek-v4-flash",
+        name: "DeepSeek V4 Flash",
+        version: "unknown",
+        contextLength: 1_048_576,
+        maxOutputTokens: 384_000,
+        imageInput: false,
+        toolCalling: true,
+      },
+      {
+        id: "deepseek-ai/deepseek-v4.1-flash",
+        name: "DeepSeek V4.1 Flash",
+        version: "unknown",
+        contextLength: 1_048_576,
+        maxOutputTokens: 384_000,
+        imageInput: true,
+        toolCalling: true,
+      },
+    ],
+  });
+  const withState = new Provider(output, "fixture-agent", state, undefined, async (url) => {
+    if (url === "https://models.dev/api.json") return json({ aiand: { models: {} } });
+    // Discovery is unavailable, so the persisted snapshot is what remains.
+    throw new Error("catalog unavailable");
+  });
+  const models = await withState.provideLanguageModelChatInformation(
+    { configuration: { apiKey: "entry-fixture" } },
+    token,
+  );
+  // The retired model is gone, but the rest of the snapshot still loads.
+  assert.deepEqual(models.map((model) => model.rawModelId), ["deepseek-ai/deepseek-v4.1-flash"]);
 });
