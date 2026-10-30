@@ -15,6 +15,7 @@ export interface ModelPricingFields {
 const OFFICIAL_MODEL_COSTS: Readonly<Record<string, ModelCost>> = {
   "openai/gpt-oss-120b": { input: 0.15, cacheRead: 0.08, output: 0.6 },
   "deepseek-ai/deepseek-v4.1-flash": { input: 0.3, cacheRead: 0.02, output: 0.6 },
+  "deepseek-ai/deepseek-v4.1-flash-1017": { input: 0.3, cacheRead: 0.02, output: 0.6 },
   "deepseek-ai/deepseek-v4-pro": { input: 1, cacheRead: 0.25, output: 2.5 },
   "moonshotai/kimi-k3": { input: 3, cacheRead: 0.5, output: 12.5 },
   "zai-org/glm-5.3-flash": { input: 0.15, cacheRead: 0.03, output: 0.5 },
@@ -23,6 +24,7 @@ const OFFICIAL_MODEL_COSTS: Readonly<Record<string, ModelCost>> = {
   "qwen/qwen3.8-27b": { input: 0.4, cacheRead: 0.2, output: 3 },
   "qwen/qwen3.6-27b": { input: 0.32, cacheRead: 0.2, output: 3.2 },
   "motif-technologies/motif-3": { input: 0.5, cacheRead: 0.2, output: 2 },
+  "meta/muse-spark-open": { input: 1.25, cacheRead: 0.15, output: 4.25 },
 };
 
 export function ampersandModelCost(id: string, discovered?: ModelCost): ModelCost | undefined {
