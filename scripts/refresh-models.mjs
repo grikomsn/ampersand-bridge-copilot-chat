@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { isDeepStrictEqual } from "node:util";
 
@@ -9,7 +10,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const require = createRequire(import.meta.url);
 const fields = ["contextLength", "maxOutputTokens", "imageInput", "toolCalling", "reasoningEfforts", "defaultReasoningEffort", "cost"];
 
-/** Compare normalized public metadata without writing source files or opening a PR. */
+/** Compares normalized public metadata without writing source files or opening a PR. */
 export function compareCatalogs(bundled, live) {
   const baseline = new Map(bundled.map((model) => [model.id, model]));
   const discovered = new Map(live.map((model) => [model.id, model]));
@@ -48,7 +49,7 @@ export function formatReport(comparison, source, date) {
 }
 
 export async function fetchCatalog(fetchImpl = fetch) {
-  const { AMPERSAND_ENDPOINTS, extensionUserAgent } = require("../out/transport/protocol.js");
+  const { AMPERSAND_ENDPOINTS, extensionUserAgent } = requireBundled("out/transport/protocol.js");
   const manifest = JSON.parse(readFileSync(path.join(root, "package.json"), "utf8"));
   const response = await fetchImpl(AMPERSAND_ENDPOINTS.models, {
     headers: { accept: "application/json", "User-Agent": extensionUserAgent(manifest.version, manifest.engines.vscode.replace(/^\^/, "")) },
@@ -87,6 +88,34 @@ function numericLiteral(value) {
   return text.length >= 6 ? text.replace(/\B(?=(\d{3})+(?!\d))/g, "_") : text;
 }
 
+/** Loads a compiled module, recompiling first when any source is newer than out/. */
+function requireBundled(relative) {
+  const resolved = path.join(root, relative);
+  if (!existsSync(resolved) || srcNewerThan(resolved)) {
+    const compiled = spawnSync("npm", ["run", "compile"], { cwd: root, encoding: "utf8" });
+    if (compiled.status) {
+      console.error(compiled.stderr);
+      process.exit(compiled.status ?? 1);
+    }
+  }
+  return require(resolved);
+}
+
+/** True when any TypeScript source is newer than the compiled target. */
+function srcNewerThan(target) {
+  const compiled = statSync(target).mtimeMs;
+  const stack = [path.join(root, "src")];
+  while (stack.length) {
+    const dir = stack.pop();
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) stack.push(full);
+      else if (/\.(?:ts|mts)$/.test(entry.name) && statSync(full).mtimeMs > compiled) return true;
+    }
+  }
+  return false;
+}
+
 /** Serializes one FALLBACK_MODEL_METADATA row; trailing-false flags are trimmed. */
 function metadataRow(model) {
   return `  model(${JSON.stringify(model.id)}, ${numericLiteral(model.contextLength)}, ${numericLiteral(model.maxOutputTokens)}${model.imageInput ? ", true" : ""}),`;
@@ -110,7 +139,8 @@ function editRegion(source, startMarker, endMarker, next) {
   const start = source.indexOf(startMarker);
   const end = source.indexOf(endMarker, start);
   if (start < 0 || end < 0) throw new Error("Bundled metadata region not found; review the source layout");
-  return source.slice(0, start) + next + source.slice(end);
+  const interiorStart = start + startMarker.length;
+  return source.slice(0, interiorStart) + next + source.slice(end);
 }
 
 /** Rewrites bundled fallback regions from live metadata; only listed bundled IDs change. */
@@ -124,14 +154,14 @@ export function applyCatalog(sourceCatalog, sourcePricing, bundledIds, live) {
     editRegion(sourceCatalog,
       "const FALLBACK_REASONING_EFFORTS: Readonly<Record<string, {\n  readonly efforts: readonly ReasoningEffort[];\n  readonly defaultEffort: ReasoningEffort;\n}>> = {",
       "\n};",
-      `${efforts}\n`),
+      `\n${efforts}`),
     "export const FALLBACK_MODEL_METADATA: readonly AmpersandModelMetadata[] = [",
     "\n];",
-    `${metadata}\n`);
+    `\n${metadata}`);
   const nextPricing = editRegion(sourcePricing,
     "const OFFICIAL_MODEL_COSTS: Readonly<Record<string, ModelCost>> = {",
     "\n};",
-    `${costs}\n`);
+    `\n${costs}`);
   return { catalog: nextCatalog, pricing: nextPricing };
 }
 
@@ -146,7 +176,7 @@ function writeChangeset(date) {
 export function applyToSourceTree(live, date) {
   const catalogPath = path.join(root, "src/models/catalog.ts");
   const pricingPath = path.join(root, "src/models/pricing.ts");
-  const { FALLBACK_MODELS } = require("../out/models/catalog.js");
+  const { FALLBACK_MODELS } = requireBundled("out/models/catalog.js");
   const result = applyCatalog(readFileSync(catalogPath, "utf8"), readFileSync(pricingPath, "utf8"), FALLBACK_MODELS, live);
   writeFileSync(catalogPath, result.catalog);
   writeFileSync(pricingPath, result.pricing);
@@ -167,8 +197,8 @@ export async function main(args = process.argv.slice(2)) {
     else throw new Error("Usage: npm run refresh-models -- [--check] [--apply] [--pr] [--report-file path]");
   }
   const date = new Date().toISOString().slice(0, 10);
-  const { FALLBACK_MODEL_METADATA, FALLBACK_MODELS, modelCatalogFromApi } = require("../out/models/catalog.js");
-  const { AMPERSAND_ENDPOINTS } = require("../out/transport/protocol.js");
+  const { FALLBACK_MODEL_METADATA, FALLBACK_MODELS, modelCatalogFromApi } = requireBundled("out/models/catalog.js");
+  const { AMPERSAND_ENDPOINTS } = requireBundled("out/transport/protocol.js");
   const live = modelCatalogFromApi(await fetchCatalog());
   const comparison = compareCatalogs(FALLBACK_MODEL_METADATA, live);
   let report = formatReport(comparison, AMPERSAND_ENDPOINTS.models, date);
