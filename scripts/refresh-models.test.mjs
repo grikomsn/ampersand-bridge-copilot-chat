@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { compareCatalogs, fetchCatalog, formatReport } from "./refresh-models.mjs";
+import { applyCatalog, compareCatalogs, fetchCatalog, formatReport } from "./refresh-models.mjs";
 
 test("reports additions, absent IDs, and changed fields without changing the inputs", () => {
   const bundled = [{ id: "same", maxOutputTokens: 10, cost: { input: 1, output: 2 } }, { id: "old" }];
@@ -42,4 +42,41 @@ test("rejects failed, incomplete, or non-USD public catalogs without echoing res
     { data: [{ id: "fixture", currency: "jpy" }] }]) {
     await assert.rejects(fetchCatalog(async () => Response.json(payload)), /Public Ampersand Bridge/);
   }
+});
+
+test("applyCatalog preserves the region declarations it rewrites", () => {
+  const catalog = [
+    "import type { ReasoningEffort } from \"./options\";",
+    "",
+    "const FALLBACK_REASONING_EFFORTS: Readonly<Record<string, {",
+    "  readonly efforts: readonly ReasoningEffort[];",
+    "  readonly defaultEffort: ReasoningEffort;",
+    "}>> = {",
+    "  \"fixture/model\": { efforts: [\"none\"], defaultEffort: \"none\" },",
+    "};",
+    "",
+    "export const FALLBACK_MODEL_METADATA: readonly AmpersandModelMetadata[] = [",
+    "  model(\"fixture/model\", 1_048_576, 32_768),",
+    "];"] .join("\n");
+  const pricing = [
+    "export interface ModelCost { readonly input: number; }",
+    "",
+    "const OFFICIAL_MODEL_COSTS: Readonly<Record<string, ModelCost>> = {",
+    "  \"fixture/model\": { input: 1, cacheRead: 0.1, output: 2 },",
+    "};",
+    ""].join("\n");
+  const live = [{
+    id: "fixture/model", name: "Fixture Model", contextLength: 1_048_576,
+    maxOutputTokens: 65_536, imageInput: true, toolCalling: true,
+    reasoningEfforts: ["high"], defaultReasoningEffort: "high",
+    cost: { input: 2, cacheRead: 0.2, output: 4 },
+  }];
+  const result = applyCatalog(catalog, pricing, ["fixture/model"], live);
+  // Every declaration survives; only the interiors are rewritten.
+  assert.match(result.catalog, /const FALLBACK_REASONING_EFFORTS: Readonly<Record<string, \{/);
+  assert.match(result.catalog, /export const FALLBACK_MODEL_METADATA: readonly AmpersandModelMetadata\[\] = \[/);
+  assert.match(result.catalog, /\"fixture\/model\": \{ efforts: \[\"high\"\], defaultEffort: \"high\" \},/);
+  assert.match(result.catalog, /model\("fixture\/model", 1_048_576, 65536, true\),/);
+  assert.match(result.pricing, /const OFFICIAL_MODEL_COSTS: Readonly<Record<string, ModelCost>> = \{/);
+  assert.match(result.pricing, /\"fixture\/model\": \{ input: 2, cacheRead: 0.2, output: 4 \},/);
 });
