@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.5
+
+### Patch Changes
+
+- 6c0a64b: Add DeepSeek V4.1 Flash 1017 and Muse Spark Open to the bundled fallback catalog.
+
 ## 2.0.4
 
 ### Patch Changes
