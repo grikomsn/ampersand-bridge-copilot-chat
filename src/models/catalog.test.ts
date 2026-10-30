@@ -116,6 +116,33 @@ test("provides documented fallback limits", () => {
   assert.equal(formatTokenLimit(262_144), "256K");
 });
 
+test("mirrors the 2026-10-30 hosted catalog additions", () => {
+  assert.deepEqual(getModelMetadata("deepseek-ai/deepseek-v4.1-flash-1017"), {
+    id: "deepseek-ai/deepseek-v4.1-flash-1017",
+    name: "DeepSeek V4.1 Flash 1017",
+    version: "unknown",
+    contextLength: 1_048_576,
+    maxOutputTokens: 384_000,
+    imageInput: true,
+    toolCalling: true,
+    reasoningEfforts: ["none", "high", "max"],
+    defaultReasoningEffort: "high",
+    cost: { input: 0.3, cacheRead: 0.02, output: 0.6 },
+  });
+  assert.deepEqual(getModelMetadata("meta/muse-spark-open"), {
+    id: "meta/muse-spark-open",
+    name: "Muse Spark Open",
+    version: "unknown",
+    contextLength: 1_048_576,
+    maxOutputTokens: 943_718,
+    imageInput: true,
+    toolCalling: true,
+    reasoningEfforts: ["low", "medium", "high", "xhigh"],
+    defaultReasoningEffort: "low",
+    cost: { input: 1.25, cacheRead: 0.15, output: 4.25 },
+  });
+});
+
 test("uses exactly the discovered catalog and advertised metadata", () => {
   assert.deepEqual(
     orderModelMetadata([

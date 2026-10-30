@@ -5,6 +5,7 @@ import type { ReasoningEffort } from "./options";
 export const FALLBACK_MODELS = [
   "openai/gpt-oss-120b",
   "deepseek-ai/deepseek-v4.1-flash",
+  "deepseek-ai/deepseek-v4.1-flash-1017",
   "deepseek-ai/deepseek-v4-pro",
   "moonshotai/kimi-k3",
   "zai-org/glm-5.3-flash",
@@ -13,6 +14,7 @@ export const FALLBACK_MODELS = [
   "qwen/qwen3.8-27b",
   "qwen/qwen3.6-27b",
   "motif-technologies/motif-3",
+  "meta/muse-spark-open",
 ] as const;
 
 export const DEFAULT_MAX_INPUT_TOKENS = 262_144;
@@ -42,6 +44,7 @@ const FALLBACK_REASONING_EFFORTS: Readonly<Record<string, {
 }>> = {
   "openai/gpt-oss-120b": { efforts: ["low", "medium", "high"], defaultEffort: "medium" },
   "deepseek-ai/deepseek-v4.1-flash": { efforts: ["none", "high", "max"], defaultEffort: "high" },
+  "deepseek-ai/deepseek-v4.1-flash-1017": { efforts: ["none", "high", "max"], defaultEffort: "high" },
   "deepseek-ai/deepseek-v4-pro": { efforts: ["none", "high", "max"], defaultEffort: "high" },
   "moonshotai/kimi-k3": { efforts: ["low", "high", "max"], defaultEffort: "max" },
   "zai-org/glm-5.3-flash": { efforts: ["low", "high", "max"], defaultEffort: "max" },
@@ -50,6 +53,7 @@ const FALLBACK_REASONING_EFFORTS: Readonly<Record<string, {
   "qwen/qwen3.8-27b": { efforts: ["none", "low", "medium", "xhigh"], defaultEffort: "xhigh" },
   "qwen/qwen3.6-27b": { efforts: ["none", "high"], defaultEffort: "high" },
   "motif-technologies/motif-3": { efforts: ["none", "high"], defaultEffort: "high" },
+  "meta/muse-spark-open": { efforts: ["low", "medium", "high", "xhigh"], defaultEffort: "low" },
 };
 
 export interface AmpersandModelMetadata {
@@ -99,6 +103,7 @@ export interface AmpersandApiModel {
 const OFFICIAL_MODEL_NAMES: Readonly<Record<string, string>> = {
   "openai/gpt-oss-120b": "GPT OSS 120B",
   "deepseek-ai/deepseek-v4.1-flash": "DeepSeek V4.1 Flash",
+  "deepseek-ai/deepseek-v4.1-flash-1017": "DeepSeek V4.1 Flash 1017",
   "deepseek-ai/deepseek-v4-pro": "DeepSeek V4 Pro",
   "moonshotai/kimi-k3": "Kimi K3",
   "zai-org/glm-5.3-flash": "GLM 5.3 Flash",
@@ -107,6 +112,7 @@ const OFFICIAL_MODEL_NAMES: Readonly<Record<string, string>> = {
   "qwen/qwen3.8-27b": "Qwen 3.8 27B",
   "qwen/qwen3.6-27b": "Qwen 3.6 27B",
   "motif-technologies/motif-3": "Motif 3",
+  "meta/muse-spark-open": "Muse Spark Open",
 };
 
 const VENDOR_LABELS: Readonly<Record<string, string>> = {
@@ -117,11 +123,13 @@ const VENDOR_LABELS: Readonly<Record<string, string>> = {
   google: "Google",
   qwen: "Qwen",
   "motif-technologies": "Motif",
+  meta: "Muse Spark",
 };
 
 export const FALLBACK_MODEL_METADATA: readonly AmpersandModelMetadata[] = [
   model("openai/gpt-oss-120b", 131_072, 32_768),
   model("deepseek-ai/deepseek-v4.1-flash", 1_048_576, 384_000, true),
+  model("deepseek-ai/deepseek-v4.1-flash-1017", 1_048_576, 384_000, true),
   model("deepseek-ai/deepseek-v4-pro", 1_048_576, 384_000),
   model("moonshotai/kimi-k3", 1_048_576, 131_072, true),
   model("zai-org/glm-5.3-flash", 1_048_550, 131_072, true),
@@ -130,6 +138,7 @@ export const FALLBACK_MODEL_METADATA: readonly AmpersandModelMetadata[] = [
   model("qwen/qwen3.8-27b", 262_144, 32_768, true),
   model("qwen/qwen3.6-27b", 262_144, 65_536, true),
   model("motif-technologies/motif-3", 262_144, 262_144),
+  model("meta/muse-spark-open", 1_048_576, 943_718, true),
 ];
 
 const PREFERRED_ORDER = new Map<string, number>(FALLBACK_MODELS.map((id, index) => [id, index]));
