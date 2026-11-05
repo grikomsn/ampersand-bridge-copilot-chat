@@ -125,7 +125,7 @@ test("mirrors the 2026-10-30 hosted catalog additions", () => {
     maxOutputTokens: 384_000,
     imageInput: true,
     toolCalling: true,
-    reasoningEfforts: ["none", "high", "max"],
+    reasoningEfforts: ["none", "low", "high", "xhigh", "max"],
     defaultReasoningEffort: "high",
     cost: { input: 0.3, cacheRead: 0.02, output: 0.6 },
   });
@@ -138,9 +138,28 @@ test("mirrors the 2026-10-30 hosted catalog additions", () => {
     imageInput: true,
     toolCalling: true,
     reasoningEfforts: ["low", "medium", "high", "xhigh"],
-    defaultReasoningEffort: "low",
+    defaultReasoningEffort: "xhigh",
     cost: { input: 1.25, cacheRead: 0.15, output: 4.25 },
   });
+});
+
+test("mirrors the 2026-11-05 hosted catalog additions", () => {
+  assert.deepEqual(getModelMetadata("moonshotai/kimi-k3.1-pro"), {
+    id: "moonshotai/kimi-k3.1-pro",
+    name: "Kimi K3.1 Pro",
+    version: "unknown",
+    contextLength: 1_048_576,
+    maxOutputTokens: 131_072,
+    imageInput: true,
+    toolCalling: true,
+    reasoningEfforts: ["low", "high", "max"],
+    defaultReasoningEffort: "high",
+    cost: { input: 2, cacheRead: 0.2, output: 10 },
+  });
+  assert.deepEqual(
+    orderModels(["moonshotai/kimi-k3.1-pro", "moonshotai/kimi-k3"]),
+    ["moonshotai/kimi-k3", "moonshotai/kimi-k3.1-pro"],
+  );
 });
 
 test("uses exactly the discovered catalog and advertised metadata", () => {

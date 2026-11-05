@@ -8,6 +8,7 @@ export const FALLBACK_MODELS = [
   "deepseek-ai/deepseek-v4.1-flash-1017",
   "deepseek-ai/deepseek-v4-pro",
   "moonshotai/kimi-k3",
+  "moonshotai/kimi-k3.1-pro",
   "zai-org/glm-5.3-flash",
   "zai-org/glm-5.3",
   "google/gemma-4-31b-it",
@@ -43,17 +44,18 @@ const FALLBACK_REASONING_EFFORTS: Readonly<Record<string, {
   readonly defaultEffort: ReasoningEffort;
 }>> = {
   "openai/gpt-oss-120b": { efforts: ["low", "medium", "high"], defaultEffort: "medium" },
-  "deepseek-ai/deepseek-v4.1-flash": { efforts: ["none", "high", "max"], defaultEffort: "high" },
-  "deepseek-ai/deepseek-v4.1-flash-1017": { efforts: ["none", "high", "max"], defaultEffort: "high" },
+  "deepseek-ai/deepseek-v4.1-flash": { efforts: ["none", "low", "high", "xhigh", "max"], defaultEffort: "high" },
+  "deepseek-ai/deepseek-v4.1-flash-1017": { efforts: ["none", "low", "high", "xhigh", "max"], defaultEffort: "high" },
   "deepseek-ai/deepseek-v4-pro": { efforts: ["none", "high", "max"], defaultEffort: "high" },
   "moonshotai/kimi-k3": { efforts: ["low", "high", "max"], defaultEffort: "max" },
+  "moonshotai/kimi-k3.1-pro": { efforts: ["low", "high", "max"], defaultEffort: "high" },
   "zai-org/glm-5.3-flash": { efforts: ["low", "high", "max"], defaultEffort: "max" },
   "zai-org/glm-5.3": { efforts: ["low", "high", "max"], defaultEffort: "max" },
   "google/gemma-4-31b-it": { efforts: ["none", "high"], defaultEffort: "none" },
   "qwen/qwen3.8-27b": { efforts: ["none", "low", "medium", "xhigh"], defaultEffort: "xhigh" },
   "qwen/qwen3.6-27b": { efforts: ["none", "high"], defaultEffort: "high" },
   "motif-technologies/motif-3": { efforts: ["none", "high"], defaultEffort: "high" },
-  "meta/muse-spark-open": { efforts: ["low", "medium", "high", "xhigh"], defaultEffort: "low" },
+  "meta/muse-spark-open": { efforts: ["low", "medium", "high", "xhigh"], defaultEffort: "xhigh" },
 };
 
 export interface AmpersandModelMetadata {
@@ -106,6 +108,7 @@ const OFFICIAL_MODEL_NAMES: Readonly<Record<string, string>> = {
   "deepseek-ai/deepseek-v4.1-flash-1017": "DeepSeek V4.1 Flash 1017",
   "deepseek-ai/deepseek-v4-pro": "DeepSeek V4 Pro",
   "moonshotai/kimi-k3": "Kimi K3",
+  "moonshotai/kimi-k3.1-pro": "Kimi K3.1 Pro",
   "zai-org/glm-5.3-flash": "GLM 5.3 Flash",
   "zai-org/glm-5.3": "GLM 5.3",
   "google/gemma-4-31b-it": "Gemma 4 31B IT",
@@ -127,16 +130,17 @@ const VENDOR_LABELS: Readonly<Record<string, string>> = {
 };
 
 export const FALLBACK_MODEL_METADATA: readonly AmpersandModelMetadata[] = [
-  model("openai/gpt-oss-120b", 131_072, 32_768),
+  model("openai/gpt-oss-120b", 131_072, 32768),
   model("deepseek-ai/deepseek-v4.1-flash", 1_048_576, 384_000, true),
   model("deepseek-ai/deepseek-v4.1-flash-1017", 1_048_576, 384_000, true),
   model("deepseek-ai/deepseek-v4-pro", 1_048_576, 384_000),
   model("moonshotai/kimi-k3", 1_048_576, 131_072, true),
+  model("moonshotai/kimi-k3.1-pro", 1_048_576, 131_072, true),
   model("zai-org/glm-5.3-flash", 1_048_550, 131_072, true),
   model("zai-org/glm-5.3", 1_048_576, 131_072),
-  model("google/gemma-4-31b-it", 262_144, 32_768, true),
-  model("qwen/qwen3.8-27b", 262_144, 32_768, true),
-  model("qwen/qwen3.6-27b", 262_144, 65_536, true),
+  model("google/gemma-4-31b-it", 262_144, 32768, true),
+  model("qwen/qwen3.8-27b", 262_144, 32768, true),
+  model("qwen/qwen3.6-27b", 262_144, 65536, true),
   model("motif-technologies/motif-3", 262_144, 262_144),
   model("meta/muse-spark-open", 1_048_576, 943_718, true),
 ];
