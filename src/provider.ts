@@ -401,6 +401,7 @@ export class AmpersandProvider implements vscode.LanguageModelChatProvider<Amper
       choices?: Array<{ message?: { content?: string } }>;
       usage?: Record<string, unknown>;
     };
+    // Non-stream responses still carry a usage block; keep tracked usage current.
     if (responseBody.usage) this.captureRequestUsage(responseBody.usage, model, credentialRef);
     return {
       model,

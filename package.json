@@ -201,7 +201,7 @@
     "clean": "node -e \"require('node:fs').rmSync('out',{recursive:true,force:true})\"",
     "compile": "npm run clean && tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "test": "npm run compile && node --test \"out/**/*.test.js\"",
+    "test": "npm run compile && node --test \"out/**/*.test.js\" \"scripts/*.test.mjs\"",
     "check": "npm test",
     "changeset": "changeset",
     "version": "changeset version && npm install --package-lock-only --ignore-scripts",

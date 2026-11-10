@@ -270,7 +270,8 @@ function modelMetadataFromApi(
   const capabilities = stringArray(raw.capabilities);
   const modalities = stringArray(raw.input_modalities) ?? stringArray(architecture?.input_modalities);
   const rawName = typeof raw.name === "string" ? raw.name : "";
-  const apiName = rawName.trim().replace(/^Ampersand Bridge:\s*/i, "").trim();
+  // The service prefixes display names with "ai&:", which never appears in the picker.
+  const apiName = rawName.trim().replace(/^ai&:\s*/i, "").trim();
   const capabilitySet = new Set((capabilities ?? []).map((value) => value.toLowerCase()));
   // The live reasoning_efforts list is authoritative for what the model accepts.
   const liveEfforts = stringArray(raw.reasoning_efforts);
