@@ -1,7 +1,7 @@
 /** User-facing Ampersand Bridge commands and connection workflows. */
 
 import * as vscode from "vscode";
-import { CONFIG_SECTION, DEFAULT_INLINE_MODEL, INLINE_SUGGESTIONS_MODEL_SETTING } from "../autocomplete/config";
+import { CONFIG_SECTION, INLINE_SUGGESTIONS_MODEL_SETTING, inlineModelId } from "../autocomplete/config";
 import { inlineModelChoices } from "../autocomplete/models";
 import { messageOf } from "../errors";
 import { API_BASE, AmpersandProvider } from "../provider";
@@ -69,7 +69,7 @@ interface InlineModelPickItem extends vscode.QuickPickItem {
 
 async function setInlineSuggestionsModel(): Promise<void> {
   const configuration = vscode.workspace.getConfiguration(CONFIG_SECTION);
-  const current = configuration.get<string>(INLINE_SUGGESTIONS_MODEL_SETTING, DEFAULT_INLINE_MODEL) ?? DEFAULT_INLINE_MODEL;
+  const current = inlineModelId(configuration.get<string>(INLINE_SUGGESTIONS_MODEL_SETTING));
   const picked = await vscode.window.showQuickPick<InlineModelPickItem>([
     ...inlineModelChoices(current).map((choice) => ({
       label: choice.label,

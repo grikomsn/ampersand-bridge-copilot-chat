@@ -3,15 +3,16 @@
  *
  * Badges carry measured inline-completion latency against api.aiand.com
  * (median time-to-first-byte over a realistic fill-in-the-middle prompt with
- * each model's reasoning-off effort, 15 interleaved runs, 2026-10-21). The
+ * each model's reasoning-off effort, interleaved runs; DeepSeek V4.1 Flash
+ * 1017 re-measured over 15 runs on 2026-10-30). The
  * QuickPick command renders this list and writes the selected id to
  * `ampersandBridge.inlineSuggestionsModel`, so choices need no reload. Unknown
  * model ids stay reachable through the command's custom entry and the raw
  * setting.
  *
- * Models whose support ends on 2026-10-27 (`deepseek-ai/deepseek-v4-flash`,
- * `moonshotai/kimi-k2.7-code`, `zai-org/glm-5.2`) are not offered; their
- * replacements are listed instead.
+ * Models whose support has ended (`deepseek-ai/deepseek-v4-flash`,
+ * `deepseek-ai/deepseek-v4.1-flash`, `moonshotai/kimi-k2.7-code`,
+ * `zai-org/glm-5.2`) are not offered; their replacements are listed instead.
  *
  * Pure and unit-tested.
  */
@@ -26,9 +27,9 @@ export interface InlineModelCandidate {
 
 export const INLINE_MODEL_CANDIDATES: readonly InlineModelCandidate[] = [
   {
-    id: "deepseek-ai/deepseek-v4.1-flash",
-    badge: "★ default · measured ~0.8s TTFB",
-    detail: "Replacement for DeepSeek V4 Flash; economical reasoning and long-context work.",
+    id: "deepseek-ai/deepseek-v4.1-flash-1017",
+    badge: "★ default · measured ~0.35s TTFB · ~0.45s total",
+    detail: "Fastest full completion; successor of DeepSeek V4.1 Flash (retired 2026-11-06).",
   },
   {
     id: "google/gemma-4-31b-it",

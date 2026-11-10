@@ -14,7 +14,6 @@ export interface ModelPricingFields {
 
 const OFFICIAL_MODEL_COSTS: Readonly<Record<string, ModelCost>> = {
   "openai/gpt-oss-120b": { input: 0.15, cacheRead: 0.08, output: 0.6 },
-  "deepseek-ai/deepseek-v4.1-flash": { input: 0.3, cacheRead: 0.02, output: 0.6 },
   "deepseek-ai/deepseek-v4.1-flash-1017": { input: 0.3, cacheRead: 0.02, output: 0.6 },
   "deepseek-ai/deepseek-v4-pro": { input: 1, cacheRead: 0.25, output: 2.5 },
   "moonshotai/kimi-k3": { input: 3, cacheRead: 0.5, output: 12.5 },
