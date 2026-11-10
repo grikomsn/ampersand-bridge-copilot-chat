@@ -167,7 +167,7 @@ test("uses exactly the discovered catalog and advertised metadata", () => {
     orderModelMetadata([
       {
         id: "custom-vision",
-        name: "Ampersand Bridge: Custom Vision",
+        name: "ai&: Custom Vision",
         context_length: 500_000,
         max_completion_tokens: 64_000,
         input_modalities: ["text", "image"],
@@ -224,6 +224,15 @@ test("ignores a live default the model does not list and keeps the model default
   ]);
   assert.deepEqual(live.reasoningEfforts, ["none", "low", "medium", "xhigh"]);
   assert.equal(live.defaultReasoningEffort, "xhigh");
+});
+
+test("strips the service's ai& display-name prefix", () => {
+  const [live] = orderModelMetadata([
+    { id: "custom-vision", name: "ai&: Custom Vision", context_length: 500_000 },
+    { id: "plain-name", name: "Plain Name", context_length: 500_000 },
+  ]);
+  assert.equal(live.name, "Custom Vision");
+  assert.equal(orderModelMetadata([{ id: "plain-name", name: "Plain Name" }])[0]?.name, "Plain Name");
 });
 
 test("reads Ampersand Bridge capabilities arrays and per-million pricing", () => {
