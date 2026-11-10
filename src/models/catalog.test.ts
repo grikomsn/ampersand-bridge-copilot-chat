@@ -23,9 +23,10 @@ test("accepts Ampersand Bridge chat model IDs and excludes non-chat families", (
   assert.equal(isAmpersandChatModel("image/generator"), false);
 });
 
-test("drops models whose support ends on 2026-10-27", () => {
+test("drops models whose support has ended", () => {
   for (const retired of [
     "deepseek-ai/deepseek-v4-flash",
+    "deepseek-ai/deepseek-v4.1-flash",
     "moonshotai/kimi-k2.7-code",
     "zai-org/glm-5.2",
   ]) {
@@ -35,7 +36,7 @@ test("drops models whose support ends on 2026-10-27", () => {
   }
   // Their replacements stay in the picker.
   for (const replacement of [
-    "deepseek-ai/deepseek-v4.1-flash",
+    "deepseek-ai/deepseek-v4.1-flash-1017",
     "moonshotai/kimi-k3",
     "zai-org/glm-5.3-flash",
   ]) {
@@ -45,7 +46,12 @@ test("drops models whose support ends on 2026-10-27", () => {
 });
 
 test("keeps retired models out of the bundled fallback catalog", () => {
-  for (const retired of ["deepseek-ai/deepseek-v4-flash", "moonshotai/kimi-k2.7-code", "zai-org/glm-5.2"]) {
+  for (const retired of [
+    "deepseek-ai/deepseek-v4-flash",
+    "deepseek-ai/deepseek-v4.1-flash",
+    "moonshotai/kimi-k2.7-code",
+    "zai-org/glm-5.2",
+  ]) {
     assert.equal(FALLBACK_MODELS.includes(retired as never), false, retired);
     assert.equal(FALLBACK_MODEL_METADATA.some((model) => model.id === retired), false, retired);
   }
@@ -75,7 +81,7 @@ test("formats model IDs for the VS Code picker", () => {
 
 test("provides documented fallback limits", () => {
   for (const id of [
-    "deepseek-ai/deepseek-v4.1-flash",
+    "deepseek-ai/deepseek-v4.1-flash-1017",
     "deepseek-ai/deepseek-v4-pro",
     "moonshotai/kimi-k3",
     "zai-org/glm-5.3",
@@ -83,8 +89,8 @@ test("provides documented fallback limits", () => {
     assert.equal(getModelMetadata(id).contextLength, 1_048_576);
   }
   assert.equal(getModelMetadata("moonshotai/kimi-k3").imageInput, true);
-  assert.equal(getModelMetadata("deepseek-ai/deepseek-v4.1-flash").imageInput, true);
-  assert.equal(getModelMetadata("deepseek-ai/deepseek-v4.1-flash").maxOutputTokens, 384_000);
+  assert.equal(getModelMetadata("deepseek-ai/deepseek-v4.1-flash-1017").imageInput, true);
+  assert.equal(getModelMetadata("deepseek-ai/deepseek-v4.1-flash-1017").maxOutputTokens, 384_000);
   assert.equal(getModelMetadata("zai-org/glm-5.3-flash").contextLength, 1_048_550);
   assert.equal(getModelMetadata("zai-org/glm-5.3-flash").defaultReasoningEffort, "max");
   assert.equal(getModelMetadata("qwen/qwen3.6-27b").maxOutputTokens, 65_536);

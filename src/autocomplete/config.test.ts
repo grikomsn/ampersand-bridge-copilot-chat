@@ -18,6 +18,7 @@ import {
   INLINE_SUGGESTIONS_SETTING,
   INLINE_SUFFIX_CHARS_SETTING,
   INLINE_TIMEOUT_MS_SETTING,
+  inlineModelId,
 } from "./config";
 
 test("keeps the configuration section and setting keys stable", () => {
@@ -33,8 +34,8 @@ test("keeps the configuration section and setting keys stable", () => {
 });
 
 test("uses the documented inline suggestion defaults", () => {
-  // Low-latency flash-tier default; not live-benchmarked against Ampersand Bridge yet.
-  assert.equal(DEFAULT_INLINE_MODEL, "deepseek-ai/deepseek-v4.1-flash");
+  // Low-latency flash-tier default, measured ~0.35s TTFB on 2026-10-30.
+  assert.equal(DEFAULT_INLINE_MODEL, "deepseek-ai/deepseek-v4.1-flash-1017");
   assert.equal(DEFAULT_INLINE_DEBOUNCE_MS, 300);
   assert.equal(DEFAULT_INLINE_TIMEOUT_MS, 3_000);
   assert.equal(DEFAULT_INLINE_MAX_TOKENS, 128);
@@ -80,4 +81,20 @@ test("passes through in-range integers unchanged", () => {
 test("returns the fallback verbatim even when it falls outside the range", () => {
   assert.equal(clampNumber("nope", 9_999, 50, 2_000), 9_999);
   assert.equal(clampNumber(undefined, -1, 50, 2_000), -1);
+});
+
+test("moves retired inline model ids to the default and keeps the rest", () => {
+  assert.equal(inlineModelId("deepseek-ai/deepseek-v4-flash"), DEFAULT_INLINE_MODEL);
+  assert.equal(inlineModelId("deepseek-ai/deepseek-v4.1-flash"), DEFAULT_INLINE_MODEL);
+  assert.equal(inlineModelId("moonshotai/kimi-k2.7-code"), DEFAULT_INLINE_MODEL);
+  assert.equal(inlineModelId("zai-org/glm-5.2"), DEFAULT_INLINE_MODEL);
+  assert.equal(inlineModelId("google/gemma-4-31b-it"), "google/gemma-4-31b-it");
+  assert.equal(inlineModelId("zai-org/glm-5.3-flash"), "zai-org/glm-5.3-flash");
+});
+
+test("trims and normalizes the configured inline model id", () => {
+  assert.equal(inlineModelId("  google/gemma-4-31b-it  "), "google/gemma-4-31b-it");
+  assert.equal(inlineModelId("DEEPSEEK-AI/DEEPSEEK-V4-FLASH"), DEFAULT_INLINE_MODEL);
+  assert.equal(inlineModelId("   "), DEFAULT_INLINE_MODEL);
+  assert.equal(inlineModelId(undefined), DEFAULT_INLINE_MODEL);
 });

@@ -126,15 +126,16 @@ test("lists no models when the service refuses the entry key", async () => {
 test("omits models whose support ends from the picker", async () => {
   const { provider } = setup("", { data: [
     { id: "deepseek-ai/deepseek-v4-flash" },
+    { id: "deepseek-ai/deepseek-v4.1-flash" },
     { id: "moonshotai/kimi-k2.7-code" },
     { id: "zai-org/glm-5.2" },
-    { id: "deepseek-ai/deepseek-v4.1-flash" },
+    { id: "deepseek-ai/deepseek-v4.1-flash-1017" },
   ] });
   const models = await provider.provideLanguageModelChatInformation(
     { configuration: { apiKey: "entry-fixture" } },
     token,
   );
-  assert.deepEqual(models.map((model) => model.rawModelId), ["deepseek-ai/deepseek-v4.1-flash"]);
+  assert.deepEqual(models.map((model) => model.rawModelId), ["deepseek-ai/deepseek-v4.1-flash-1017"]);
 });
 
 test("ignores persisted snapshots that still hold a retired model", async () => {
@@ -165,6 +166,15 @@ test("ignores persisted snapshots that still hold a retired model", async () => 
         imageInput: true,
         toolCalling: true,
       },
+      {
+        id: "deepseek-ai/deepseek-v4.1-flash-1017",
+        name: "DeepSeek V4.1 Flash 1017",
+        version: "unknown",
+        contextLength: 1_048_576,
+        maxOutputTokens: 384_000,
+        imageInput: true,
+        toolCalling: true,
+      },
     ],
   });
   const withState = new Provider(output, "fixture-agent", state, undefined, async (url) => {
@@ -176,6 +186,6 @@ test("ignores persisted snapshots that still hold a retired model", async () => 
     { configuration: { apiKey: "entry-fixture" } },
     token,
   );
-  // The retired model is gone, but the rest of the snapshot still loads.
-  assert.deepEqual(models.map((model) => model.rawModelId), ["deepseek-ai/deepseek-v4.1-flash"]);
+  // The retired models are gone, but the rest of the snapshot still loads.
+  assert.deepEqual(models.map((model) => model.rawModelId), ["deepseek-ai/deepseek-v4.1-flash-1017"]);
 });
