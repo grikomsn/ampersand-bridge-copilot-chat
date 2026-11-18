@@ -3,7 +3,7 @@ import Module from "node:module";
 import test from "node:test";
 import type * as vscode from "vscode";
 import { AMPERSAND_ENDPOINTS } from "./transport/protocol";
-import { credentialReference } from "./auth/auth";
+import { credentialReference } from "./kit/credentials";
 
 class TextPart { constructor(readonly value: string) {} }
 class ToolCallPart { constructor(readonly callId: string, readonly name: string, readonly input: object) {} }

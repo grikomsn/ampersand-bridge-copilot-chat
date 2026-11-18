@@ -9,9 +9,10 @@
  */
 
 import * as vscode from "vscode";
-import { ChatCompletionEngine } from "./engine";
-import { AmpersandInlineCompletionProvider } from "./provider";
-import type { CompletionContext, CompletionEngine, CompletionResult } from "./types";
+import { ChatCompletionEngine } from "../kit/autocomplete/chat-engine";
+import { InlineCompletionProvider } from "../kit/autocomplete/provider";
+import type { CompletionContext, CompletionEngine, CompletionResult } from "../kit/autocomplete/types";
+import { buildCompletionPrompt } from "./prompt";
 import {
   clampNumber,
   CONFIG_SECTION,
@@ -65,6 +66,8 @@ export function registerInlineCompletions(context: vscode.ExtensionContext, deps
         return { text: undefined, durationMs: 0 };
       }
       const keyed = new ChatCompletionEngine({
+        label: "Ampersand Bridge",
+        buildPrompt: (request) => buildCompletionPrompt(request.prefix, request.suffix, request.reasoningEfforts),
         url: AMPERSAND_ENDPOINTS.chat,
         headers: ampersandHeaders(apiKey, "text/event-stream, application/json", extensionUserAgent(deps.version, deps.vscodeVersion)),
         timeoutMs: readNumberSetting(INLINE_TIMEOUT_MS_SETTING, DEFAULT_INLINE_TIMEOUT_MS, 500, 15_000),
@@ -74,7 +77,7 @@ export function registerInlineCompletions(context: vscode.ExtensionContext, deps
     },
   };
 
-  const provider = new AmpersandInlineCompletionProvider({
+  const provider = new InlineCompletionProvider({
     engine,
     isEnabled: () => readSetting(INLINE_SUGGESTIONS_SETTING, false),
     resolveModelId: () => inlineModelId(readSetting<string | undefined>(INLINE_SUGGESTIONS_MODEL_SETTING, undefined)),
