@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { costCategory, ampersandModelCost, modelCostFromApi, modelPricingFields } from "./pricing";
+import { ampersandModelCost, modelCostFromApi } from "./pricing";
+import { costCategory, modelPricingFields } from "../kit/pricing";
 
 test("passes through Ampersand Bridge per-million API rates without per-token scaling", () => {
   assert.deepEqual(modelCostFromApi({

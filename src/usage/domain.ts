@@ -1,3 +1,5 @@
+import { providerUsagePayload, type ProviderUsagePayload } from "../kit/usage-payload";
+
 export interface AccountAllowance {
   readonly credits?: number;
   readonly currency?: "usd" | "jpy";
@@ -28,14 +30,6 @@ export interface AmpersandUsageSnapshot {
   readonly tracked?: TrackedUsage;
   readonly updatedAt?: number;
   readonly error?: string;
-}
-export interface ProviderUsagePayload {
-  prompt_tokens?: number;
-  completion_tokens?: number;
-  total_tokens?: number;
-  prompt_tokens_details?: { cached_tokens: number };
-  completion_tokens_details?: { reasoning_tokens: number };
-  copilotCredits?: number;
 }
 export interface UsageDisplayRow {
   readonly kind: "credits" | "allowance" | "tracked" | "request" | "warning" | "empty";
@@ -91,22 +85,10 @@ export function recordRequestUsage(
   };
 }
 
-export function toProviderUsagePayload(raw: Record<string, unknown>): ProviderUsagePayload {
-  const usage = normalizeUsage(raw);
-  return {
-    ...(usage.promptTokens === undefined ? {} : { prompt_tokens: usage.promptTokens }),
-    ...(usage.completionTokens === undefined ? {} : { completion_tokens: usage.completionTokens }),
-    ...(usage.totalTokens === undefined ? {} : { total_tokens: usage.totalTokens }),
-    ...(usage.cachedTokens === undefined ? {} : { prompt_tokens_details: { cached_tokens: usage.cachedTokens } }),
-    ...(usage.reasoningTokens === undefined
-      ? {}
-      : {
-          completion_tokens_details: {
-            reasoning_tokens: usage.reasoningTokens,
-          },
-        }),
-    ...(usage.cost === undefined ? {} : { copilotCredits: usage.cost }),
-  };
+/** The `"usage"` data part for one response, including the reported request cost. */
+export function toProviderUsagePayload(raw: Record<string, unknown>): ProviderUsagePayload | undefined {
+  const { cost, ...usage } = normalizeUsage(raw);
+  return providerUsagePayload({ ...usage, ...(cost === undefined ? {} : { costUsd: cost }) });
 }
 
 export function formatUsageStatusBar(snapshot: AmpersandUsageSnapshot): string {

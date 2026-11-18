@@ -3,7 +3,7 @@
 import * as vscode from "vscode";
 import { CONFIG_SECTION, INLINE_SUGGESTIONS_MODEL_SETTING, inlineModelId } from "../autocomplete/config";
 import { inlineModelChoices } from "../autocomplete/models";
-import { messageOf } from "../errors";
+import { messageOf } from "../kit/errors";
 import { API_BASE, AmpersandProvider } from "../provider";
 import { formatUsageRows } from "../usage/domain";
 import { toUsageQuickPickItem, type UsageQuickPickItem } from "../usage/presentation";
