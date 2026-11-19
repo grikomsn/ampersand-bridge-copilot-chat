@@ -12,7 +12,6 @@ const OFFICIAL_MODEL_COSTS: Readonly<Record<string, ModelCost>> = {
   "zai-org/glm-5.3": { input: 1, cacheRead: 0.3, output: 4 },
   "google/gemma-4-31b-it": { input: 0.2, cacheRead: 0.05, output: 0.5 },
   "qwen/qwen3.8-27b": { input: 0.4, cacheRead: 0.2, output: 3 },
-  "qwen/qwen3.6-27b": { input: 0.32, cacheRead: 0.2, output: 3.2 },
   "motif-technologies/motif-3": { input: 0.5, cacheRead: 0.2, output: 2 },
   "meta/muse-spark-open": { input: 1.25, cacheRead: 0.15, output: 4.25 },
 };

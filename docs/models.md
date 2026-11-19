@@ -14,7 +14,6 @@ models.dev metadata fills gaps for unknown models without ever widening an
 authoritative live effort list.
 
 Snapshot checked against the hosted catalog on 2026-11-10.
-
 | Model | ID | Context | Max output | Image input | Reasoning efforts (default) |
 |---|---|---|---|---|---|
 | GPT OSS 120B | `openai/gpt-oss-120b` | 131K | 32K | — | low / medium / high (medium) |
@@ -26,11 +25,10 @@ Snapshot checked against the hosted catalog on 2026-11-10.
 | GLM 5.3 | `zai-org/glm-5.3` | 1M | 131K | — | low / high / max (max) |
 | Gemma 4 31B IT | `google/gemma-4-31b-it` | 262K | 32K | ✓ | none / high (none) |
 | Qwen 3.8 27B | `qwen/qwen3.8-27b` | 262K | 32K | ✓ | none / low / medium / xhigh (xhigh) |
-| Qwen 3.6 27B | `qwen/qwen3.6-27b` | 262K | 65K | ✓ | none / high (high) |
 | Motif 3 | `motif-technologies/motif-3` | 262K | 262K | — | none / high (high) |
 | Muse Spark Open | `meta/muse-spark-open` | 1M | 922K | ✓ | low / medium / high / xhigh (xhigh) |
 
-DeepSeek V4 Flash, Kimi K2.7 Code, and GLM 5.2 were removed ahead of their 2026-10-27 end of support, and DeepSeek V4.1 Flash after its 2026-11-06 end of support. The recommended replacements are DeepSeek V4.1 Flash 1017 for DeepSeek, Kimi K3 for Kimi, and GLM 5.3 Flash for GLM. The extension filters the retired ids out of the picker, the inline-suggestion candidate list, and persisted per-credential snapshots rather than offering a model that no longer works.
+DeepSeek V4 Flash, Kimi K2.7 Code, and GLM 5.2 were removed ahead of their 2026-10-27 end of support, DeepSeek V4.1 Flash after its 2026-11-06 end of support, and Qwen 3.6 27B ahead of its 2026-12-02 end of support. The recommended replacements are DeepSeek V4.1 Flash 1017 for DeepSeek, Kimi K3 for Kimi, GLM 5.3 Flash for GLM, and Qwen 3.8 27B for Qwen. The extension filters the retired ids out of the picker, the inline-suggestion candidate list, and persisted per-credential snapshots rather than offering a model that no longer works.
 
 ## Reasoning efforts
 
@@ -65,7 +63,6 @@ picker's price labels; live catalog pricing wins when present:
 | `zai-org/glm-5.3` | $1.00 | $0.30 | $4.00 |
 | `google/gemma-4-31b-it` | $0.20 | $0.05 | $0.50 |
 | `qwen/qwen3.8-27b` | $0.40 | $0.20 | $3.00 |
-| `qwen/qwen3.6-27b` | $0.32 | $0.20 | $3.20 |
 | `motif-technologies/motif-3` | $0.50 | $0.20 | $2.00 |
 | `meta/muse-spark-open` | $1.25 | $0.15 | $4.25 |
 

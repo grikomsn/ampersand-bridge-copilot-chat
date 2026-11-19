@@ -29,6 +29,7 @@ test("drops models whose support has ended", () => {
     "deepseek-ai/deepseek-v4.1-flash",
     "moonshotai/kimi-k2.7-code",
     "zai-org/glm-5.2",
+    "qwen/qwen3.6-27b",
   ]) {
     assert.equal(isRetiredModel(retired), true, retired);
     assert.deepEqual(orderModels([retired]), [], retired);
@@ -39,6 +40,7 @@ test("drops models whose support has ended", () => {
     "deepseek-ai/deepseek-v4.1-flash-1017",
     "moonshotai/kimi-k3",
     "zai-org/glm-5.3-flash",
+    "qwen/qwen3.8-27b",
   ]) {
     assert.equal(isRetiredModel(replacement), false, replacement);
     assert.deepEqual(orderModels([replacement]), [replacement]);
@@ -51,6 +53,7 @@ test("keeps retired models out of the bundled fallback catalog", () => {
     "deepseek-ai/deepseek-v4.1-flash",
     "moonshotai/kimi-k2.7-code",
     "zai-org/glm-5.2",
+    "qwen/qwen3.6-27b",
   ]) {
     assert.equal(FALLBACK_MODELS.includes(retired as never), false, retired);
     assert.equal(FALLBACK_MODEL_METADATA.some((model) => model.id === retired), false, retired);
@@ -93,7 +96,7 @@ test("provides documented fallback limits", () => {
   assert.equal(getModelMetadata("deepseek-ai/deepseek-v4.1-flash-1017").maxOutputTokens, 384_000);
   assert.equal(getModelMetadata("zai-org/glm-5.3-flash").contextLength, 1_048_550);
   assert.equal(getModelMetadata("zai-org/glm-5.3-flash").defaultReasoningEffort, "max");
-  assert.equal(getModelMetadata("qwen/qwen3.6-27b").maxOutputTokens, 65_536);
+  assert.equal(getModelMetadata("qwen/qwen3.8-27b").maxOutputTokens, 32_768);
   assert.deepEqual(getModelMetadata("zai-org/glm-5.3"), {
     id: "zai-org/glm-5.3",
     name: "GLM 5.3",

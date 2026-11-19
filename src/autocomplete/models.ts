@@ -12,7 +12,8 @@
  *
  * Models whose support has ended (`deepseek-ai/deepseek-v4-flash`,
  * `deepseek-ai/deepseek-v4.1-flash`, `moonshotai/kimi-k2.7-code`,
- * `zai-org/glm-5.2`) are not offered; their replacements are listed instead.
+ * `zai-org/glm-5.2`, `qwen/qwen3.6-27b`) are not offered; their replacements
+ * are listed instead.
  *
  * Pure and unit-tested.
  */
@@ -40,11 +41,6 @@ export const INLINE_MODEL_CANDIDATES: readonly InlineModelCandidate[] = [
     id: "zai-org/glm-5.3",
     badge: "measured ~0.6s TTFB",
     detail: "GLM model; reasoning runs at its lightest supported effort.",
-  },
-  {
-    id: "qwen/qwen3.6-27b",
-    badge: "measured ~0.6s TTFB",
-    detail: "Fast first token with a compact Qwen model.",
   },
   {
     id: "motif-technologies/motif-3",
