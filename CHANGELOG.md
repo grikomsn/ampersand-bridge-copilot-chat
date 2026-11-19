@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.1.1
+
+### Patch Changes
+
+- a1ecb9b: Forward tool-result images and tighten error details
+  
+  - Vision models now receive images returned by tools (for example screenshots) after every parallel tool call settles; text-only models keep a placeholder.
+  - HTTP errors show only a bounded, provider-authored message from structured error bodies; raw response bodies are never echoed.
+  - Inline suggestions also strip code fences that some models wrap around completions.
+  
+  Shared provider plumbing now comes from the copilot-chat-kit submodule, so fixes land in every Copilot Chat provider extension at once.
+- e86834b: Retire the `qwen/qwen3.6-27b` model ahead of its December 2, 2026 end of support on the ai& service. The id is filtered from the model picker, the inline-suggestion candidate list, and persisted per-credential snapshots; `qwen/qwen3.8-27b` remains the recommended replacement.
+
 ## 2.1.0
 
 ### Minor Changes
