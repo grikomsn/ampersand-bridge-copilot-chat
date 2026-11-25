@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.2
+
+### Patch Changes
+
+- 243f787: Resync bundled model metadata with the live hosted catalog (contexts, output limits, image input, reasoning efforts, and USD pricing).
+
 ## 2.1.1
 
 ### Patch Changes
