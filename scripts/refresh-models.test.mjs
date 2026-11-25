@@ -44,6 +44,28 @@ test("rejects failed, incomplete, or non-USD public catalogs without echoing res
   }
 });
 
+test("applies the completeness guard to bundled models but reports new ids separately", async () => {
+  const chat = { id: "fixture/model", currency: "usd", context_window: 100, max_output_tokens: 10,
+    capabilities: ["reasoning"], reasoning_efforts: ["low"], reasoning_effort_default: "low",
+    input_per_1m: "0.1", output_per_1m: "0.2" };
+  // A newly listed model with sparse metadata (an audio transcription model with
+  // a null output ceiling) does not invalidate the comparison.
+  const sparse = { id: "nvidia/nvidia-nemotron-3.5-transcribe-30b-a4b", currency: "usd",
+    context_window: 65536, max_output_tokens: null, capabilities: ["audio"],
+    reasoning_efforts: ["none"], reasoning_effort_default: "none" };
+  assert.deepEqual(
+    await fetchCatalog(async () => Response.json({ data: [chat, sparse] }), ["fixture/model"]),
+    { data: [chat, sparse] },
+  );
+  // Without a bundled list, the strict schema applies to every entry.
+  await assert.rejects(fetchCatalog(async () => Response.json({ data: [chat, sparse] })),
+    /Public Ampersand Bridge metadata is incomplete/);
+  // A bundled model with the same gaps still fails the guard.
+  await assert.rejects(
+    fetchCatalog(async () => Response.json({ data: [{ ...chat, max_output_tokens: null }] }), ["fixture/model"]),
+    /Public Ampersand Bridge metadata is incomplete/);
+});
+
 test("applyCatalog preserves the region declarations it rewrites", () => {
   const catalog = [
     "import type { ReasoningEffort } from \"./options\";",

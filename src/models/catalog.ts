@@ -5,7 +5,7 @@ import type { ReasoningEffort } from "./options";
 export const FALLBACK_MODELS = [
   "openai/gpt-oss-120b",
   "deepseek-ai/deepseek-v4.1-flash-1017",
-  "deepseek-ai/deepseek-v4-pro",
+  "deepseek-ai/deepseek-v4-pro-0813",
   "moonshotai/kimi-k3",
   "moonshotai/kimi-k3.1-pro",
   "zai-org/glm-5.3-flash",
@@ -24,7 +24,8 @@ export const DEFAULT_MAX_OUTPUT_TOKENS = 131_072;
  * their replacements instead: DeepSeek V4 Flash → DeepSeek V4.1 Flash 1017
  * (2026-10-27), Kimi K2.7 Code → Kimi K3, GLM 5.2 → GLM 5.3 Flash (both
  * 2026-10-27), DeepSeek V4.1 Flash → DeepSeek V4.1 Flash 1017 (2026-11-06),
- * and Qwen 3.6 27B → Qwen 3.8 27B (2026-12-02).
+ * Qwen 3.6 27B → Qwen 3.8 27B (2026-12-02), and DeepSeek V4 Pro →
+ * DeepSeek V4 Pro 0813 (2026-12-02).
  */
 const RETIRED_MODEL_IDS: ReadonlySet<string> = new Set([
   "deepseek-ai/deepseek-v4-flash",
@@ -32,6 +33,7 @@ const RETIRED_MODEL_IDS: ReadonlySet<string> = new Set([
   "moonshotai/kimi-k2.7-code",
   "zai-org/glm-5.2",
   "qwen/qwen3.6-27b",
+  "deepseek-ai/deepseek-v4-pro",
 ]);
 
 /**
@@ -46,7 +48,7 @@ const FALLBACK_REASONING_EFFORTS: Readonly<Record<string, {
 }>> = {
   "openai/gpt-oss-120b": { efforts: ["low", "medium", "high"], defaultEffort: "medium" },
   "deepseek-ai/deepseek-v4.1-flash-1017": { efforts: ["none", "low", "high", "xhigh", "max"], defaultEffort: "high" },
-  "deepseek-ai/deepseek-v4-pro": { efforts: ["none", "high", "max"], defaultEffort: "high" },
+  "deepseek-ai/deepseek-v4-pro-0813": { efforts: ["none", "high", "max"], defaultEffort: "high" },
   "moonshotai/kimi-k3": { efforts: ["low", "high", "max"], defaultEffort: "max" },
   "moonshotai/kimi-k3.1-pro": { efforts: ["low", "high", "max"], defaultEffort: "high" },
   "zai-org/glm-5.3-flash": { efforts: ["low", "high", "max"], defaultEffort: "max" },
@@ -104,7 +106,7 @@ export interface AmpersandApiModel {
 const OFFICIAL_MODEL_NAMES: Readonly<Record<string, string>> = {
   "openai/gpt-oss-120b": "GPT OSS 120B",
   "deepseek-ai/deepseek-v4.1-flash-1017": "DeepSeek V4.1 Flash 1017",
-  "deepseek-ai/deepseek-v4-pro": "DeepSeek V4 Pro",
+  "deepseek-ai/deepseek-v4-pro-0813": "DeepSeek V4 Pro 0813",
   "moonshotai/kimi-k3": "Kimi K3",
   "moonshotai/kimi-k3.1-pro": "Kimi K3.1 Pro",
   "zai-org/glm-5.3-flash": "GLM 5.3 Flash",
@@ -129,7 +131,7 @@ const VENDOR_LABELS: Readonly<Record<string, string>> = {
 export const FALLBACK_MODEL_METADATA: readonly AmpersandModelMetadata[] = [
   model("openai/gpt-oss-120b", 131_072, 32768),
   model("deepseek-ai/deepseek-v4.1-flash-1017", 1_048_576, 384_000, true),
-  model("deepseek-ai/deepseek-v4-pro", 1_048_576, 384_000),
+  model("deepseek-ai/deepseek-v4-pro-0813", 1_048_576, 384_000),
   model("moonshotai/kimi-k3", 1_048_576, 131_072, true),
   model("moonshotai/kimi-k3.1-pro", 1_048_576, 131_072, true),
   model("zai-org/glm-5.3-flash", 1_048_550, 131_072, true),

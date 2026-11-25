@@ -13,12 +13,12 @@ the hosted catalog snapshot; live values always win over bundled rows, and
 models.dev metadata fills gaps for unknown models without ever widening an
 authoritative live effort list.
 
-Snapshot checked against the hosted catalog on 2026-11-10.
+Snapshot checked against the hosted catalog on 2026-11-25.
 | Model | ID | Context | Max output | Image input | Reasoning efforts (default) |
 |---|---|---|---|---|---|
 | GPT OSS 120B | `openai/gpt-oss-120b` | 131K | 32K | — | low / medium / high (medium) |
 | DeepSeek V4.1 Flash 1017 | `deepseek-ai/deepseek-v4.1-flash-1017` | 1M | 384K | ✓ | none / low / high / xhigh / max (high) |
-| DeepSeek V4 Pro | `deepseek-ai/deepseek-v4-pro` | 1M | 384K | — | none / high / max (high) |
+| DeepSeek V4 Pro 0813 | `deepseek-ai/deepseek-v4-pro-0813` | 1M | 384K | — | none / high / max (high) |
 | Kimi K3 | `moonshotai/kimi-k3` | 1M | 131K | ✓ | low / high / max (max) |
 | Kimi K3.1 Pro | `moonshotai/kimi-k3.1-pro` | 1M | 131K | ✓ | low / high / max (high) |
 | GLM 5.3 Flash | `zai-org/glm-5.3-flash` | ~1M (1,048,550) | 131K | ✓ | low / high / max (max) |
@@ -28,7 +28,7 @@ Snapshot checked against the hosted catalog on 2026-11-10.
 | Motif 3 | `motif-technologies/motif-3` | 262K | 262K | — | none / high (high) |
 | Muse Spark Open | `meta/muse-spark-open` | 1M | 922K | ✓ | low / medium / high / xhigh (xhigh) |
 
-DeepSeek V4 Flash, Kimi K2.7 Code, and GLM 5.2 were removed ahead of their 2026-10-27 end of support, DeepSeek V4.1 Flash after its 2026-11-06 end of support, and Qwen 3.6 27B ahead of its 2026-12-02 end of support. The recommended replacements are DeepSeek V4.1 Flash 1017 for DeepSeek, Kimi K3 for Kimi, GLM 5.3 Flash for GLM, and Qwen 3.8 27B for Qwen. The extension filters the retired ids out of the picker, the inline-suggestion candidate list, and persisted per-credential snapshots rather than offering a model that no longer works.
+DeepSeek V4 Flash, Kimi K2.7 Code, and GLM 5.2 were removed ahead of their 2026-10-27 end of support, DeepSeek V4.1 Flash after its 2026-11-06 end of support, Qwen 3.6 27B ahead of its 2026-12-02 end of support, and DeepSeek V4 Pro ahead of its 2026-12-02 end of support. The recommended replacements are DeepSeek V4.1 Flash 1017 for DeepSeek flash models, DeepSeek V4 Pro 0813 for DeepSeek V4 Pro, Kimi K3 for Kimi, GLM 5.3 Flash for GLM, and Qwen 3.8 27B for Qwen. The extension filters the retired ids out of the picker, the inline-suggestion candidate list, and persisted per-credential snapshots rather than offering a model that no longer works.
 
 ## Reasoning efforts
 
@@ -56,7 +56,7 @@ picker's price labels; live catalog pricing wins when present:
 |---|---|---|---|
 | `openai/gpt-oss-120b` | $0.15 | $0.08 | $0.60 |
 | `deepseek-ai/deepseek-v4.1-flash-1017` | $0.30 | $0.02 | $0.60 |
-| `deepseek-ai/deepseek-v4-pro` | $1.00 | $0.25 | $2.50 |
+| `deepseek-ai/deepseek-v4-pro-0813` | $1.00 | $0.25 | $2.50 |
 | `moonshotai/kimi-k3` | $3.00 | $0.50 | $12.50 |
 | `moonshotai/kimi-k3.1-pro` | $2.00 | $0.20 | $10.00 |
 | `zai-org/glm-5.3-flash` | $0.15 | $0.03 | $0.50 |

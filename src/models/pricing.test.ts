@@ -33,7 +33,7 @@ test("uses current official rates when live metadata omits pricing", () => {
   assert.deepEqual(ampersandModelCost("deepseek-ai/deepseek-v4.1-flash-1017"), { input: 0.3, cacheRead: 0.02, output: 0.6 });
   assert.deepEqual(ampersandModelCost("zai-org/glm-5.3-flash"), { input: 0.15, cacheRead: 0.03, output: 0.5 });
   assert.deepEqual(ampersandModelCost("google/gemma-4-31b-it"), { input: 0.2, cacheRead: 0.05, output: 0.5 });
-  assert.deepEqual(ampersandModelCost("deepseek-ai/deepseek-v4-pro", { input: 1, output: 2 }), { input: 1, output: 2 });
+  assert.deepEqual(ampersandModelCost("deepseek-ai/deepseek-v4-pro-0813", { input: 1, output: 2 }), { input: 1, output: 2 });
   assert.equal(ampersandModelCost("future-model"), undefined);
 });
 
