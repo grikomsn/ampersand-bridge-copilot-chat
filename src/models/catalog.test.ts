@@ -30,6 +30,7 @@ test("drops models whose support has ended", () => {
     "moonshotai/kimi-k2.7-code",
     "zai-org/glm-5.2",
     "qwen/qwen3.6-27b",
+    "deepseek-ai/deepseek-v4-pro",
   ]) {
     assert.equal(isRetiredModel(retired), true, retired);
     assert.deepEqual(orderModels([retired]), [], retired);
@@ -41,6 +42,7 @@ test("drops models whose support has ended", () => {
     "moonshotai/kimi-k3",
     "zai-org/glm-5.3-flash",
     "qwen/qwen3.8-27b",
+    "deepseek-ai/deepseek-v4-pro-0813",
   ]) {
     assert.equal(isRetiredModel(replacement), false, replacement);
     assert.deepEqual(orderModels([replacement]), [replacement]);
@@ -54,6 +56,7 @@ test("keeps retired models out of the bundled fallback catalog", () => {
     "moonshotai/kimi-k2.7-code",
     "zai-org/glm-5.2",
     "qwen/qwen3.6-27b",
+    "deepseek-ai/deepseek-v4-pro",
   ]) {
     assert.equal(FALLBACK_MODELS.includes(retired as never), false, retired);
     assert.equal(FALLBACK_MODEL_METADATA.some((model) => model.id === retired), false, retired);
@@ -85,7 +88,7 @@ test("formats model IDs for the VS Code picker", () => {
 test("provides documented fallback limits", () => {
   for (const id of [
     "deepseek-ai/deepseek-v4.1-flash-1017",
-    "deepseek-ai/deepseek-v4-pro",
+    "deepseek-ai/deepseek-v4-pro-0813",
     "moonshotai/kimi-k3",
     "zai-org/glm-5.3",
   ]) {
@@ -263,9 +266,9 @@ test("reads Ampersand Bridge capabilities arrays and per-million pricing", () =>
 });
 
 test("keeps verified fallback capabilities ahead of secondary metadata", () => {
-  const [enriched] = orderModelMetadata([{ id: "deepseek-ai/deepseek-v4-pro" }], {
-    "deepseek-ai/deepseek-v4-pro": {
-      id: "deepseek-ai/deepseek-v4-pro",
+  const [enriched] = orderModelMetadata([{ id: "deepseek-ai/deepseek-v4-pro-0813" }], {
+    "deepseek-ai/deepseek-v4-pro-0813": {
+      id: "deepseek-ai/deepseek-v4-pro-0813",
       description: "General coding model",
       imageInput: true,
       toolCalling: false,

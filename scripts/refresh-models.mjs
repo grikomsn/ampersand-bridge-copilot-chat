@@ -48,7 +48,7 @@ export function formatReport(comparison, source, date) {
   ].join("\n");
 }
 
-export async function fetchCatalog(fetchImpl = fetch) {
+export async function fetchCatalog(fetchImpl = fetch, bundledIds = null) {
   const { AMPERSAND_ENDPOINTS, extensionUserAgent } = requireBundled("out/transport/protocol.js");
   const manifest = JSON.parse(readFileSync(path.join(root, "package.json"), "utf8"));
   const response = await fetchImpl(AMPERSAND_ENDPOINTS.models, {
@@ -67,16 +67,22 @@ export async function fetchCatalog(fetchImpl = fetch) {
   if (payload.data.some((model) => model.currency !== undefined && model.currency !== "usd")) {
     throw new Error("Public Ampersand Bridge catalog did not return USD pricing");
   }
-  // A drift report must not silently substitute bundled values for missing live fields.
-  if (payload.data.some((model) => !Number.isSafeInteger(model.context_window) || model.context_window <= 0
-    || !Number.isSafeInteger(model.max_output_tokens) || model.max_output_tokens <= 0
-    || !Array.isArray(model.capabilities) || model.capabilities.some((capability) => typeof capability !== "string")
-    || !Array.isArray(model.reasoning_efforts) || model.reasoning_efforts.some((effort) => typeof effort !== "string")
-    || (model.reasoning_efforts.length
-      ? !model.reasoning_efforts.includes(model.reasoning_effort_default)
-      : model.reasoning_effort_default !== undefined && model.reasoning_effort_default !== null)
-    || [model.input_per_1m, model.output_per_1m].some((rate) => rate === undefined || rate === null || rate === ""
-      || !Number.isFinite(Number(rate)) || Number(rate) < 0))) {
+  // A drift report must not silently substitute bundled values for missing live
+  // fields. The strict schema applies to models the snapshot bundles; newly
+  // added ids (a service can list entries with sparse metadata, for example an
+  // audio transcription model with a null output ceiling) surface in the
+  // report's "New IDs" section for maintainer review instead.
+  const complete = (model) => Number.isSafeInteger(model.context_window) && model.context_window > 0
+    && Number.isSafeInteger(model.max_output_tokens) && model.max_output_tokens > 0
+    && Array.isArray(model.capabilities) && model.capabilities.every((capability) => typeof capability === "string")
+    && Array.isArray(model.reasoning_efforts) && model.reasoning_efforts.every((effort) => typeof effort === "string")
+    && (model.reasoning_efforts.length
+      ? model.reasoning_efforts.includes(model.reasoning_effort_default)
+      : model.reasoning_effort_default === undefined || model.reasoning_effort_default === null)
+    && [model.input_per_1m, model.output_per_1m].every((rate) => rate !== undefined && rate !== null && rate !== ""
+      && Number.isFinite(Number(rate)) && Number(rate) >= 0);
+  const bundled = bundledIds === null ? null : new Set(bundledIds);
+  if (payload.data.some((model) => (bundled === null || bundled.has(model.id)) && !complete(model))) {
     throw new Error("Public Ampersand Bridge metadata is incomplete; review its schema before comparing the snapshot");
   }
   return payload;
@@ -199,7 +205,7 @@ export async function main(args = process.argv.slice(2)) {
   const date = new Date().toISOString().slice(0, 10);
   const { FALLBACK_MODEL_METADATA, FALLBACK_MODELS, modelCatalogFromApi } = requireBundled("out/models/catalog.js");
   const { AMPERSAND_ENDPOINTS } = requireBundled("out/transport/protocol.js");
-  const live = modelCatalogFromApi(await fetchCatalog());
+  const live = modelCatalogFromApi(await fetchCatalog(undefined, FALLBACK_MODELS));
   const comparison = compareCatalogs(FALLBACK_MODEL_METADATA, live);
   let report = formatReport(comparison, AMPERSAND_ENDPOINTS.models, date);
   if (apply && (comparison.changes.length)) {

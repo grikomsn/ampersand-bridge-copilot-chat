@@ -12,8 +12,8 @@
  *
  * Models whose support has ended (`deepseek-ai/deepseek-v4-flash`,
  * `deepseek-ai/deepseek-v4.1-flash`, `moonshotai/kimi-k2.7-code`,
- * `zai-org/glm-5.2`, `qwen/qwen3.6-27b`) are not offered; their replacements
- * are listed instead.
+ * `zai-org/glm-5.2`, `qwen/qwen3.6-27b`, `deepseek-ai/deepseek-v4-pro`) are
+ * not offered; their replacements are listed instead.
  *
  * Pure and unit-tested.
  */
@@ -68,7 +68,7 @@ export const INLINE_MODEL_CANDIDATES: readonly InlineModelCandidate[] = [
     detail: "Fast first token with a compact Qwen model.",
   },
   {
-    id: "deepseek-ai/deepseek-v4-pro",
+    id: "deepseek-ai/deepseek-v4-pro-0813",
     badge: "measured ~0.9s TTFB · larger",
     detail: "Larger DeepSeek model; prefer the flash tier for inline latency.",
   },
